@@ -28,9 +28,7 @@ from epidemics.tools.autodiff import  cantons_custom_derivatives
     """
 
 
-def setIC(sample, nIC) :
-  
-  nParams = len(sample["Parameters"])
+def setIC(sample, nParams, nIC) :
   
   y0 = np.zeros(5*26)
 
@@ -53,7 +51,7 @@ def setIC(sample, nIC) :
 
 def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
   nIC = 12
-  nParams = len(sample["Parameters"])
+  nParams = 6
   # Get model parameters from korali
   beta  = sample["Parameters"][0]
   mu    = sample["Parameters"][1]
@@ -72,7 +70,7 @@ def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
   # Create Epidemiological Model Class
   data = get_canton_model_data()
   
-  y0 = setIC(sample, nIC)
+  y0 = setIC(sample, nParams, nIC)
   # print(y0)
 
   solver = []  
