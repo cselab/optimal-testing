@@ -44,7 +44,7 @@ def runTMCMC(ntime, scenario, mTMCMC, priorBounds ):
 	e["Distributions"][i]["Minimum"] = +0.05
 	e["Distributions"][i]["Maximum"] = +0.30
 	
-	e["Variables"][i]["Name"] = "[Sigma]"
+	e["Variables"][i]["Name"] = "Sigma"
 	e["Variables"][i]["Prior Distribution"] = "Uniform Sigma"
 
 	# Starting Korali's Engine and running experiment

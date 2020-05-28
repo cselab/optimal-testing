@@ -27,9 +27,33 @@ from epidemics.tools.autodiff import  cantons_custom_derivatives
         scenario: string specifying the scenario to run inference
     """
 
+
+def setIC(sample, nIC) :
+  
+  nParams = len(sample["Parameters"])
+  
+  y0 = np.zeros(5*26)
+
+  # Get N and set S=N
+  y0[-26:] = [ CANTON_POPULATION[c] for c in CANTON_KEYS_ALPHABETICAL]
+  y0[:26]  = [ CANTON_POPULATION[c] for c in CANTON_KEYS_ALPHABETICAL]
+  
+  # samples for unreported cases in 12 cantons
+  cantons = [0,3,4,5,6,7,9,15,20,22,23,25]
+  
+  for i in range(nIC):
+    y0[3*26+cantons[i]] = sample["Parameters"][nParams+i]
+    y0[cantons[i]] = y0[cantons[i]] - y0[3*26+cantons[i]]
+
+  # one reported case in ticino
+  y0[2*26+20] = 1
+  y0[20] = y0[20] - 1
+  return y0
+
+
 def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
   nIC = 12
-  nParams = 6
+  nParams = len(sample["Parameters"])
   # Get model parameters from korali
   beta  = sample["Parameters"][0]
   mu    = sample["Parameters"][1]
@@ -37,6 +61,7 @@ def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
   Z     = sample["Parameters"][3]
   D     = sample["Parameters"][4]
   theta = sample["Parameters"][5]
+  
   if scenario == "second-outbreak":
     nParams = 10
     b1    = sample["Parameters"][6]
@@ -46,38 +71,21 @@ def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
 
   # Create Epidemiological Model Class
   data = get_canton_model_data()
+  
+  y0 = setIC(sample, nIC)
+  # print(y0)
 
   solver = []  
-  if scenario == "social-distancing":
-    solver = seiin.Solver(data.to_cpp())
-  elif scenario == "second-outbreak":
-    solver = seiin_interventions.Solver(data.to_cpp())
-
   params = []
   if scenario == "social-distancing":
+    y0     = seiin.State(y0)
+    solver = seiin.Solver(data.to_cpp())
     params = seiin.Parameters(beta=beta, mu=mu, alpha=alpha, Z=Z, D=D, theta=theta)
+
   elif scenario == "second-outbreak":
+    y0     = seiin_interventions.State(y0)
+    solver = seiin_interventions.Solver(data.to_cpp())
     params = seiin_interventions.Parameters(beta=beta, mu=mu, alpha=alpha, Z=Z, D=D, theta=theta, b1=b1, b2=b2, b3=0, d1=d1, d2=d2, d3=ntime)
-
-  # Set initial condition
-
-  y0 = np.zeros(5*26)
-  # Get N and set S=N
-  y0[-26:] = [ CANTON_POPULATION[c] for c in CANTON_KEYS_ALPHABETICAL]
-  y0[:26] = [ CANTON_POPULATION[c] for c in CANTON_KEYS_ALPHABETICAL]
-  # samples for unreported cases in 12 cantons
-  cantons_ = [0,3,4,5,6,7,9,15,20,22,23,25]
-  for i in range(nIC):
-    y0[3*26+cantons_[i]] = sample["Parameters"][nParams+i]
-    y0[cantons_[i]] = y0[cantons_[i]] - y0[3*26+cantons_[i]]
-  # one reported case in ticino
-  y0[2*26+20] = 1
-  y0[20] = y0[20] - 1
-  # print(y0)
-  if scenario == "social-distancing":
-    y0 = seiin.State(y0)
-  elif scenario == "second-outbreak":
-    y0 = seiin_interventions.State(y0)
 
   # Get standard deviation from Korali
   sigma = sample["Parameters"][-1]
@@ -95,21 +103,13 @@ def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
       params_der[p,p] = 1
 
     y0_der = np.zeros((5*26, nParams+nIC))
-    for i,c in enumerate(cantons_):
+    for i,c in enumerate(cantons):
       y0_der[3*26+c,nParams+i] = 1
 
-    if scenario == "social-distancing":
       static_ad = solver.solve_params_ad(params, y0, t_eval=t_eval, dt=0.1)
-      results, der_results = cantons_custom_derivatives(
-                solver, params, y0, params_der, y0_der, t_eval=t_eval, dt=0.1)
-    elif scenario == "second-outbreak":
-      static_ad = solver.solve_params_ad(params, y0, t_eval=t_eval, dt=0.1)
-      results, der_results = cantons_custom_derivatives(
-                solver, params, y0, params_der, y0_der, t_eval=t_eval, dt=0.1)
+      results, der_results = cantons_custom_derivatives(solver, params, y0, params_der, y0_der, t_eval=t_eval, dt=0.1)
+
   else:
-    if scenario == "social-distancing":
-      results = solver.solve(params, y0, t_eval=t_eval, dt=0.1)
-    elif scenario == "second-outbreak":
       results = solver.solve(params, y0, t_eval=t_eval, dt=0.1)
 
   # gather results and pass them to Korali
