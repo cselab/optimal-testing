@@ -17,7 +17,8 @@ from epidemics.tools.autodiff import  cantons_custom_derivatives
 # Global model parameters
 model = {
     'nParams' : 6,
-    'nIC'     : 12
+    'nIC'     : 12,
+    'cantons' : [0,3,4,5,6,7,9,15,20,22,23,25]
 }
 
 # Function to set initial condition
@@ -30,11 +31,10 @@ def setIC(sample) :
   y0[:26]  = [ CANTON_POPULATION[c] for c in CANTON_KEYS_ALPHABETICAL]
   
   # samples for unreported cases in 12 cantons
-  cantons = [0,3,4,5,6,7,9,15,20,22,23,25]
   
   for i in range(model["nIC"]):
-    y0[3*26+cantons[i]] = sample["Parameters"][model["nParams"]+i]
-    y0[cantons[i]] = y0[cantons[i]] - y0[3*26+cantons[i]]
+    y0[3*26+model["cantons"][i]] = sample["Parameters"][model["nParams"]+i]
+    y0[model["cantons"][i]] = y0[model["cantons"][i]] - y0[3*26+model["cantons"][i]]
 
   # one reported case in ticino
   y0[2*26+20] = 1
@@ -107,7 +107,7 @@ def runCantonsSEIIN( sample, data, ntime, sampler, scenario, x ):
       params_der[p,p] = 1
 
     y0_der = np.zeros((5*26, nParams+nIC))
-    for i,c in enumerate(cantons):
+    for i,c in enumerate(model["cantons"]):
       y0_der[3*26+c,nParams+i] = 1
 
       static_ad = solver.solve_params_ad(params, y0, t_eval=t_eval, dt=0.1)
