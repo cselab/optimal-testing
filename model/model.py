@@ -110,8 +110,8 @@ def runCantonsSEIIN( sample, data, ntime, sampler, scenario, x ):
     for i,c in enumerate(model["cantons"]):
       y0_der[3*26+c,nParams+i] = 1
 
-      static_ad = solver.solve_params_ad(params, y0, t_eval=t_eval, dt=0.1)
-      results, der_results = cantons_custom_derivatives(solver, params, y0, params_der, y0_der, t_eval=t_eval, dt=0.1)
+    static_ad = solver.solve_params_ad(params, y0, t_eval=t_eval, dt=0.1)
+    results, der_results = cantons_custom_derivatives(solver, params, y0, params_der, y0_der, t_eval=t_eval, dt=0.1)
 
   else:
       results = solver.solve(params, y0, t_eval=t_eval, dt=0.1)
