@@ -14,7 +14,7 @@ from epidemics.data.swiss_cantons import CANTON_KEYS_ALPHABETICAL, CANTON_POPULA
 
 from epidemics.tools.autodiff import  cantons_custom_derivatives
 
-# Global model parameters """
+# Global model parameters
 model = {
     'nParams' : 6,
     'nIC'     : 12
