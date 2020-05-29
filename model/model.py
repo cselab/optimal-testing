@@ -10,10 +10,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../covid19/'))
 import libepidemics.cantons.seiin_interventions as seiin_interventions
 import libepidemics.cantons.seiin as seiin
 
-from epidemics.cantons.py.model import \
-        get_canton_model_data, get_canton_reference_data, \
-        get_municipality_model_data, ModelData
-
 from epidemics.data.swiss_cantons import CANTON_KEYS_ALPHABETICAL, CANTON_POPULATION
 
 from epidemics.tools.autodiff import  cantons_custom_derivatives
@@ -49,7 +45,7 @@ def setIC(sample, nParams, nIC) :
   return y0
 
 
-def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
+def runCantonsSEIIN( sample, data, ntime, mTMCMC, scenario, x ):
   nIC = 12
   nParams = 6
   # Get model parameters from korali
@@ -68,8 +64,6 @@ def runCantonsSEIIN( sample, ntime, mTMCMC, scenario, x ):
     d2    = sample["Parameters"][9]
 
   # Create Epidemiological Model Class
-  data = get_canton_model_data()
-  
   y0 = setIC(sample, nParams, nIC)
   # print(y0)
 
