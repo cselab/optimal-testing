@@ -2,11 +2,15 @@
 
 This repository contains the code to compute optimal testing strategies to identify asymptomatic Infection.
 
-It relies on two libraries, **covid19**, providing the epidemiological models and **korali**, which provides the sampling algorithm to incorporate data to the prior used to determine the optimal testing strategy, as well as the algorithm to compute the optimal testing strategy.
+It relies on three libraries:
+
+1. **covid19**: provides the epidemiological model
+2. **korali**:  provides the algorithm to compute the optimal testing strategy.
+3. **dynesty**: nested sampling algorithm
 
 ## Installation
 
-In the following we provide instruction to install these two libraries, assuming that you are in the root folder of this repository.
+In the following we provide instruction to install these three libraries, assuming that you are in the root folder of this repository.
 
 ### Install the COVID19 library
 
@@ -31,11 +35,31 @@ In order to test whether this was successful run the command `python3 -c "import
 
 In order to test whether this was successful run the command ``python3 -c "import korali"`. If there is no error you are ready to use **korali** to solve many kinds of Bayesian problems. To get more information visit [Korali's homepage](https://www.cse-lab.ethz.ch/korali/).
 
-## Run the Optimal Testing
+### Install the DYNESTY library
 
+1. `pip3 install dynesty`
+
+
+## Run the Optimal Testing with nested sampling
+1. Go the the nested-sampling directory. If you do not want to use any available data, go to step 5
+   `cd nested-sampling`
+2. Download data of reported infected people
+   `python3 get-data.py`
+3. Run the sampling. Here you need to specify whether you assume an uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II, case=2) or all data available (Scenario III,case=3)
+   `python3 nested.py` --case 2 --cores 12
+4. Wait for an eternity, especially for case=3 (at least 36 hours, no matter how many cores you use)
+5. Evaluate the model at the samples you took from steps 2,3,4 (uniform=0) or at uniformly distributed samples (uniform=1)
+   `python3 get-samples.py --uniform 0 --days 120 --samples 500`
+6. Go back to the root directory, or login again if you fell asleep when nested sampling was running.
+   `cd ..`
+7. Run the optimal sensor placement
+   `srun -u -n 240 ./sensor_placement.py --nSensors 3 --nMeasure 1 --path './nested-sampling' --nProcs 240 --Ny 500 --Ntheta 500 --start_day 84`
+
+
+## Run the Optimal Testing with korali sampling
 1. Download data of reported infected people
    `python3 get-data.py`
-2. Run the sampling. Here you need to specify whether you assume an uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II) or all data available (Scenario III)
+2. Run the sampling. Here you need to specify whether you assume an uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II, case=2) or all data available (Scenario III,case=3)
    `python3 run-sampling.py uniform/social-distancing/second-outbreak`
 3. Evaluate the model using the samples
    `python3 run-model.py`

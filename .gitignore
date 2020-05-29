@@ -4,3 +4,6 @@ covid19/
 _korali_result/
 canton_daily_cases.npy
 samples.npy
+._*
+nested-sampling/._*
+*.pdf
