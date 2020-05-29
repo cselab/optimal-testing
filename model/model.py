@@ -14,17 +14,14 @@ from epidemics.data.swiss_cantons import CANTON_KEYS_ALPHABETICAL, CANTON_POPULA
 
 from epidemics.tools.autodiff import  cantons_custom_derivatives
 
-"""wrapper to run SEIIR model with samples from Korali
+# Global model parameters """
+model = {
+    'nParams' : 6,
+    'nIC'     : 12
+}
 
-    Arguments:
-        sample: Korali sample object with parameters, IC and sigma.
-        ntime: number of timesteps to run simulation.
-        mTMCMC: Flag specifying whether use mTMCMC (need gradients or not).
-        scenario: string specifying the scenario to run inference
-    """
-
-
-def setIC(sample, nParams, nIC) :
+# Function to set initial condition
+def setIC(sample) :
   
   y0 = np.zeros(5*26)
 
@@ -35,8 +32,8 @@ def setIC(sample, nParams, nIC) :
   # samples for unreported cases in 12 cantons
   cantons = [0,3,4,5,6,7,9,15,20,22,23,25]
   
-  for i in range(nIC):
-    y0[3*26+cantons[i]] = sample["Parameters"][nParams+i]
+  for i in range(model["nIC"]):
+    y0[3*26+cantons[i]] = sample["Parameters"][model["nParams"]+i]
     y0[cantons[i]] = y0[cantons[i]] - y0[3*26+cantons[i]]
 
   # one reported case in ticino
@@ -45,9 +42,25 @@ def setIC(sample, nParams, nIC) :
   return y0
 
 
-def runCantonsSEIIN( sample, data, ntime, mTMCMC, scenario, x ):
-  nIC = 12
-  nParams = 6
+"""wrapper to run SEIIR model with samples from Korali
+
+    Arguments:
+        sample: Korali sample object with parameters, IC and sigma.
+        data: data object with cantons data
+        ntime: number of timesteps to run simulation.
+        sampler: string, either 'mTMCMC' or 'TMCMC'
+        scenario: string specifying the scenario to run inference
+"""
+
+def runCantonsSEIIN( sample, data, ntime, sampler, scenario, x ):
+
+  mTMCMC = False
+  if sampler == "mTMCMC":
+      mTMCMC = True
+
+  nIC     = model["nIC"]
+  nParams = model["nParams"]
+  
   # Get model parameters from korali
   beta  = sample["Parameters"][0]
   mu    = sample["Parameters"][1]
@@ -64,8 +77,7 @@ def runCantonsSEIIN( sample, data, ntime, mTMCMC, scenario, x ):
     d2    = sample["Parameters"][9]
 
   # Create Epidemiological Model Class
-  y0 = setIC(sample, nParams, nIC)
-  # print(y0)
+  y0 = setIC(sample)
 
   solver = []  
   params = []

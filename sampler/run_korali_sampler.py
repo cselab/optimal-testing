@@ -12,7 +12,7 @@ from model import *
 from epidemics.cantons.py.model import get_canton_model_data
 
 # In this function we invoque Korali to sample the posterior distribution
-def runTMCMC(ntime, scenario, mTMCMC, priorBounds ):
+def runTMCMC(ntime, scenario, sampler, numSamples, priorBounds ):
 	
     # Load data
     data = get_canton_model_data()
@@ -24,13 +24,12 @@ def runTMCMC(ntime, scenario, mTMCMC, priorBounds ):
     e["Problem"]["Type"] = "Bayesian/Reference"
     e["Problem"]["Likelihood Model"] = "Normal"
     e["Problem"]["Reference Data"] = getReferenceData( ntime )
-    e["Problem"]["Computational Model"] = lambda sample: runCantonsSEIIN(sample, data, ntime, mTMCMC, scenario, getReferencePoints( ntime ))
+    e["Problem"]["Computational Model"] = lambda sample: runCantonsSEIIN(sample, data, ntime, sampler, scenario, getReferencePoints( ntime ))
 
     # Configuring TMCMC parameters
     e["Solver"]["Type"] = "TMCMC"
-    if mTMCMC:
-            e["Solver"]["Version"] = "mTMCMC"
-    e["Solver"]["Population Size"] = 5000
+    e["Solver"]["Version"] = sampler
+    e["Solver"]["Population Size"] = numSamples
     e["Console Output"]["Verbosity"] = 'Detailed'
 
     # Configuring the problem's random distributions and variables
@@ -47,8 +46,8 @@ def runTMCMC(ntime, scenario, mTMCMC, priorBounds ):
 
     e["Distributions"][i]["Name"] = "Uniform Sigma"
     e["Distributions"][i]["Type"] = "Univariate/Uniform"
-    e["Distributions"][i]["Minimum"] = +0.05
-    e["Distributions"][i]["Maximum"] = +0.30
+    e["Distributions"][i]["Minimum"] = +1e-4
+    e["Distributions"][i]["Maximum"] = +100
     
     e["Variables"][i]["Name"] = "Sigma"
     e["Variables"][i]["Prior Distribution"] = "Uniform Sigma"
