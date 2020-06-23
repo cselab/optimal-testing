@@ -7,3 +7,4 @@ samples.npy
 ._*
 nested-sampling/._*
 *.pdf
+*.npy
