@@ -17,7 +17,6 @@ In the following we provide instruction to install these three libraries, assumi
 1. `git clone git@github.com:cselab/covid19.git`
 2. `cd covid19`
 3. `git submodule update --init --recursive`
-3. `git checkout OSP`
 4. `mkdir build`
 5. `cd build`
 6. `cmake ..`
