@@ -10,7 +10,7 @@ def prepareData(days = -1,country = False):
     if days == -1:
     	days = data.shape[1]
     
-    threshold = 50.0
+    threshold = 0.0
     print("DAYS=",days)
     print("country=",country)
 
@@ -25,14 +25,12 @@ def prepareData(days = -1,country = False):
         return y
 
     for c in range(cantons):
-
         d_ = np.copy(data[c,:])
         nans, x= nan_helper(d_)
         d_[nans]= np.interp(x(nans), x(~nans), d_[~nans])
         if np.max(d_) < threshold :
             continue
         print ("cantons:" , c)
-
         d1 = np.copy(data[c,:])
 
         for d in range(days):

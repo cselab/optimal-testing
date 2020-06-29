@@ -11,7 +11,7 @@ from data import *
 from model import *
 
 refy2_cantons = prepareData(days=21)
-refy3_cantons = prepareData()
+refy3_cantons = prepareData(days=117)
 basename = "cantons___"
 ndim = 0
 
@@ -27,7 +27,7 @@ if __name__=='__main__':
     argv = sys.argv[1:]
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--nlive',type=int  , default=50 ,help="number of live samples")
+    parser.add_argument('--nlive',type=int  , default=50 ,help="number of live samples" )
     parser.add_argument('--dlogz',type=float, default=0.1 ,help="dlogz criterion"       )
     parser.add_argument('--cores',type=int  , default=96  ,help="number of cores"       )
     parser.add_argument('--case' ,type=int  , default=2   ,help="2 or 3"                )
@@ -40,29 +40,21 @@ if __name__=='__main__':
     if args.case == 3:
        model = model_3
        model_transformation = model_transformation_3
-       ndim = 10 + ic_cantons + 1
-       
-    
+       ndim = 12 + ic_cantons + 1
 
     t = -time.time()
 
-    fname = basename + '.pickle'
- 
+    fname = basename + str(args.case) + '.pickle'
+
     pool = MyPool(args.cores)
-    
+
     sampler = NestedSampler(model,model_transformation,ndim,nlive=args.nlive, bound='multi', pool=pool)
 
-    for i in range (1,1000):
-        print ("===============================")
-        print ("Running iteration number:",i,flush=True)
-        print ("===============================")
-        sampler.run_nested(maxiter=5000, dlogz=args.dlogz, add_live=True)
-
-        res = sampler.results
-        res.summary()
-
-        with open(fname, 'wb') as f:
-            pickle.dump(res, f)
+    sampler.run_nested(maxiter=1e8, dlogz=args.dlogz, add_live=True)
+    res = sampler.results
+    res.summary()
+    with open(fname, 'wb') as f:
+        pickle.dump(res, f)
 
     t += time.time()
     print("Total time=",t)
