@@ -48,7 +48,7 @@ In order to test whether this was successful run the command ``python3 -c "impor
    `python3 nested.py` --case 2 --cores 12
 4. Nested-sampling will take a while.
 5. Evaluate the model at the samples you took from steps 2,3,4 or at uniformly distributed samples
-   `mpirun -n 16 ./samples_get.py --case X --samples 100`
+   `mpirun -n 16 ./samples.py --case X --samples 100`
    This will produce 100x100 samples. They will be stored in directory caseX, X=1,2,3 in multiple files.
 6. Go back to the root directory, or login again if you fell asleep when nested sampling was running.
    `cd ..`
