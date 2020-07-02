@@ -318,11 +318,9 @@ if __name__ == "__main__":
   fname = []
   fname.append("files/optimal_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
   fname.append("files/uniform_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
-  '''
   if case == 1:
     plotNestedResult(res[0],res[1],dims=8,labels=["b\u2080","μ ","α ","Z ","D ","θ ","dispersion","sigma"],fname="marginal_case"+str(case) +"_sensors"+str(sensors))
   elif case == 2:
     plotNestedResult(res[0],res[1],dims=12,labels=["b\u2080","μ ","α ","Z ","D ","θ ","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082"],fname="marginal_case"+str(case) +"_sensors"+str(sensors))
-  '''
 
   confidence_intervals_CH(results=res,fname=fname,sensors=sensors,m=m,case=case)

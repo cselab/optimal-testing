@@ -1,25 +1,18 @@
 import numpy as np
-import pickle
-import os
-import sys
-import argparse
-import matplotlib.pyplot as plt
-import argparse
-import scipy
+import pickle,os,sys,argparse,scipy,random
 from scipy.special import loggamma
 from dynesty import NestedSampler
 from multiprocessing import Pool
-import random
 import os.path
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../covid19/epidemics/cantons/py'))
 from run_osp_cases import *
 from scipy.stats import multivariate_normal
 
 
+from create_data import *
+
 ic_cantons = 12
-def distance(t1,t2,tau):
-    dt = np.abs(t1-t2) / tau
-    return np.exp(-dt)
+
 def nan_helper(y):
     return np.isnan(y), lambda z: z.nonzero()[0]
 def prepareData(days):
