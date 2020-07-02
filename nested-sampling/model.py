@@ -22,12 +22,12 @@ def model_transformation_3(u):
     x = np.zeros(len(u))
     x[0] = 0.8  + 1.00*u[0]#b0
     x[1] = 0.2  + 0.8* u[1]#mu
-    x[2] = 0.02 + 0.98*u[2]#alpha
+    x[2] = 0.01 + 0.99*u[2]#alpha
     x[3] = 1.00 + 5.00*u[3]#Z
     x[4] = 1.00 + 5.00*u[4]#D
     x[5] = 0.5  + 1.0 *u[5]#theta
-    x[6] = x[0]*u[6]#b1
-    x[7] = x[0]*u[7]#b2
+    x[6] = u[6]*x[0]#b1
+    x[7] = u[7]*x[0]#b2
     x[8] = 20.0 + 10.00*u[8]#d1
     x[9] = 30.0 + 10.00*u[9]#d2
     x[10] = u[10]*x[5]#theta 1
@@ -60,7 +60,7 @@ def model_2(THETA):
     return loglike
 
 def model_3(THETA):
-    days = 117
+    days = 102
     results = example_run_seiin(days,THETA[0:len(THETA)-1])
     negativeBinomialConstant = 0
     loglike = 0.0

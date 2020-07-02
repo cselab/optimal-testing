@@ -29,8 +29,8 @@ if args['case'] == 2:
    start_day = 21
    days      = 21 + 14
 if args['case'] == 3:
-   start_day = 117
-   days      = 117 + 40
+   start_day = 102
+   days      = 140
 
 osp = OSP(path=args['path'],nSensors=args['nSensors'],Ny=args['Ny'],Ntheta=args['Ntheta'],start_day=start_day,days=days,korali=1)
 

@@ -29,6 +29,14 @@ def plot_all_cantons(v_list,min_day):
   cantons = 26
   days    = len(v_list[0][0])
 
+  '''
+  temp = np.asarray(v_list)
+  for j in range(days):
+      a = temp[0,:,j]
+      print(j,a.argsort()[-3:][::-1],a[a.argsort()[-3:][::-1]])
+  k=1/0
+  '''
+
   v = np.zeros( (sensors,cantons*days) )
   for i in range(sensors):
     for j in range(cantons):
@@ -37,7 +45,8 @@ def plot_all_cantons(v_list,min_day):
 
   max_v = np.max(v_list)
   
-  locations_y = np.arange(0, int(max_v+1),2)
+  locations_y = np.arange(0, int(max_v+1),4)
+  #locations_y = np.arange(7)
   base    = datetime.datetime(2020, 2, 25) #February 25th, 2020
   dates   = np.array([base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
   locator = mdates.DayLocator(interval=1)
@@ -60,7 +69,7 @@ def plot_all_cantons(v_list,min_day):
           	lab = str(s+1) + " sensor "
           axs[i0,i1].plot(dates,v_list[s][index][:],label=lab)
         axs[i0,i1].grid()
-        axs[i0,i1].set_ylim([0.0,max_v])
+        axs[i0,i1].set_ylim([0,max_v])
         axs[i0,i1].xaxis.set_major_locator(locator2)    
         axs[i0,i1].xaxis.set_minor_locator(locator)    
         axs[i0,i1].xaxis.set_major_formatter(date_form)

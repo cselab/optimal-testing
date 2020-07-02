@@ -11,7 +11,7 @@ from data import *
 from model import *
 
 refy2_cantons = prepareData(days=21)
-refy3_cantons = prepareData(days=117)
+refy3_cantons = prepareData(days=102)
 basename = "cantons___"
 ndim = 0
 
