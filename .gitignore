@@ -8,3 +8,4 @@ samples.npy
 nested-sampling/._*
 *.pdf
 *.npy
+*.sh

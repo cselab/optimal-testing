@@ -1,28 +1,20 @@
+#!/usr/bin/env python3
 import numpy as np
-import pandas as pd
-import pickle
-import os,sys
+import pickle,os,sys,argparse,datetime,random
 import matplotlib.pyplot as plt
-import argparse
 from dynesty import plotting as dyplot
 from data import *
-import datetime
-from pandas.plotting import register_matplotlib_converters
 from seiin import *
-import random
 import matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
 from matplotlib.patches import Rectangle
 from datetime import datetime, timedelta
-
 from scipy.stats import nbinom
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 
 data      = np.load("canton_daily_cases.npy")
-cantons   = data.shape[0] # = 26
 days_data = data.shape[1]
-name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR','JU','LU','NE',\
-        'NW','OW','SG','SH','SO','SZ','TG','TI','UR','VD','VS','ZG','ZH']
-
 
 ####################################################################################################
 def resample_equal_with_idx(samples, weights, rstate=None):
@@ -121,13 +113,7 @@ def posterior_plots(result,case):
     fig.savefig("posterior"+str(case)+".pdf",dpi=1000)
 
 
-####################################################################################################
-def model(days,p,case):
-####################################################################################################
-  if case == 1:
-    int_day = 1000
-    return example_run_seiin(days,p[0:len(p)-1],int_day)
-  else:  
+def model(days,p):
     return example_run_seiin(days,p[0:len(p)-1])
 
 
@@ -153,22 +139,15 @@ def confidence_intervals_daily_reported(result,case,m):
     logl       = result.logl
     parameters = samples[np.where( np.abs(logl-np.max(logl))<1e-10 )]
     parameters = parameters.reshape(ndim)
-    simulation = model(days,parameters,case)
+    simulation = model(days,parameters)
     np.save("map.npy",parameters)
-    print("MAP saved.",flush=True)
-    R0 = parameters[0]*parameters[4]*(parameters[1]*(1-parameters[2])+parameters[2])
-    mean = np.mean(samples,axis=0)
-    print(parameters)
-    print(mean)
-    np.save("test.npy",mean)
-    print("R0=",R0)
 
     prediction_matrix         = np.zeros ( ( samples.shape[0]//m, days     ) )    
     prediction_matrix_cantons = np.zeros ( ( samples.shape[0]//m, days, 26 ) )    
     for i in range( samples.shape[0]//m):
         print (i,"/",samples.shape[0]//m)
         pp = samples[i,:]
-        simulation = model(days=days,p=pp,case=case)
+        simulation = model(days=days,p=pp)
         prediction = []
         for d in range ( days ):
             cases = simulation[d].E() 
@@ -204,9 +183,6 @@ def confidence_intervals_daily_reported(result,case,m):
     ################################################################################################
 
 
-
-
-
     #Plot cantons
     #############
     fig, axs = plt.subplots(6,5)
@@ -239,7 +215,7 @@ def confidence_intervals_daily_reported(result,case,m):
                c_data.append( parameters[2]/parameters[3]*cases[index] )
            axs[i0,i1].plot(dates,c_data,label="maximum a posteriori estimate",linewidth=2,color="blue")
            axs[i0,i1].scatter(dates2,data[index,:],s=1.0,label="data",color="red")           
-           axs[i0,i1].text(.5,1.05,name[index],horizontalalignment='center',transform=axs[i0,i1].transAxes)
+           axs[i0,i1].text(.5,1.05,NAMES[index],horizontalalignment='center',transform=axs[i0,i1].transAxes)
            axs[i0,i1].xaxis.set_major_locator(locator)
            axs[i0,i1].xaxis.set_minor_locator(locator2)
            axs[i0,i1].xaxis.set_major_formatter(formatter)
@@ -256,7 +232,6 @@ def confidence_intervals_daily_reported(result,case,m):
 
 
 
-#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 if __name__=='__main__':
     argv = sys.argv[1:]
     parser = argparse.ArgumentParser()
@@ -264,7 +239,6 @@ if __name__=='__main__':
     args = parser.parse_args(argv)
     case = args.case
     m = 1
-
     res = pickle.load( open( "case"+str(case) + "/cantons___"+str(case)+".pickle", "rb" ) )
     res.summary()
     posterior_plots(res,case)
