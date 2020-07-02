@@ -44,7 +44,7 @@ In order to test whether this was successful run the command ``python3 -c "impor
    `cd nested-sampling`
 2. Download data of reported infected people
    `python3 get-data.py`
-3. Run the sampling. Here you need to specify whether you assume an uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II, case=2) or all data available (Scenario III,case=3)
+3. Run the sampling. Here you need to specify whether you assume a uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II, case=2) or all data available (Scenario III,case=3)
    `python3 nested.py` --case 2 --cores 12
 4. Nested-sampling will take a while.
 5. Evaluate the model at the samples you took from steps 2,3,4 or at uniformly distributed samples
@@ -65,4 +65,6 @@ In order to test whether this was successful run the command ``python3 -c "impor
 1. Will be added soon.
 
 ## References
-Data [openZH database](https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv). For the inference on the swiss data we replace nan's with 0.
+1. Data [openZH database](https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv). For the inference on the swiss data we do not use the NaN values.
+2. Nested sampling with the dynesty library [Dynesty](https://dynesty.readthedocs.io/en/latest/)
+3. Korali library [Korali](https://github.com/cselab/korali)
