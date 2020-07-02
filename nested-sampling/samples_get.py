@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 import numpy as np
-import pickle
-import argparse
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../covid19/epidemics/cantons/py'))
-from run_osp_cases import *
-import random
+import pickle,argparse,sys,os,random
 from mpi4py import MPI
-import h5py
-
+from seiin import *
 
 def getPosteriorFromResult(result):
     from dynesty import utils as dyfunc
     weights = np.exp(result.logwt - result.logz[-1]) #normalized weights
     samples = dyfunc.resample_equal(result.samples, weights) #Compute 10%-90% quantiles.
     return samples
-
 
 def Posterior_Samples(days,samples,res):
     np.random.seed(1234567)

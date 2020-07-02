@@ -8,8 +8,7 @@ from dynesty import plotting as dyplot
 from data import *
 import datetime
 from pandas.plotting import register_matplotlib_converters
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../covid19/epidemics/cantons/py'))
-from run_osp_cases import *
+from seiin import *
 import random
 import matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
@@ -130,95 +129,6 @@ def model(days,p,case):
     return example_run_seiin(days,p[0:len(p)-1],int_day)
   else:  
     return example_run_seiin(days,p[0:len(p)-1])
-
-####################################################################################################
-def plot_second_wave(result):
-####################################################################################################
-    days      = days_data + 60
-    samples   = getPosteriorFromResult(result)
-    ndim      = samples.shape[1]
-    reference = prepareData(country = True)
-
-    fig, ax = plt.subplots(constrained_layout=True)
-    
-    base   = datetime(2020, 2, 25) #February 25th, 2020
-    dates  = np.array([base + timedelta(hours=(24 * i)) for i in range(days)])
-    dates2 = np.array([base + timedelta(hours=(24 * i)) for i in range(days_data)])
-
-    ax.xaxis.set_major_formatter(DateFormatter("%b %d"))
-    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
-    ax.xaxis.set_minor_locator(mdates.DayLocator(interval=1))
-    
-    ax.plot(dates2,reference,'-o',label='data',zorder=10,color="red")
- 
-    #prediction_matrix = np.zeros ( ( samples.shape[0]//10, days     ) )    
-    #for i in range( samples.shape[0]//10 ):
-    #    print (i,"/",samples.shape[0]//10)
-    #    pp = samples[i,:]
-    #    simulation = model(days=days,p=pp,case=3)
-    #    prediction = []
-    #    for d in range ( days ):
-    #        cases = simulation[d].E() 
-    #        prediction_matrix        [i,d  ] = (pp[2]/pp[3])*np.sum(cases)            
-    #np.save("temp.npy",prediction_matrix)
-    prediction_matrix  = np.load("temp.npy")
-       
-    p = 0.99
-    q50  = np.quantile ( a= prediction_matrix , q = 0.50  , axis = 0)
-    qlo  = np.quantile ( a= prediction_matrix , q = 0.5 - p/2 , axis = 0)
-    qhi  = np.quantile ( a= prediction_matrix , q = 0.5 + p/2 , axis = 0)
-
-    for i in range(prediction_matrix.shape[0]):
-     plt.plot(dates,prediction_matrix[i,:],zorder=1,color="blue",linewidth=0.02)
-
-    plt.fill_between(dates, qlo, qhi,label=str(100*p)+"% credible interval",color="green")
-
-    #t_opt   = [118       ,143        , 143       , 113       , 125       , 130       ,   118,109,143,125,143,122,124,143,143,121,143,127,138,128,112,143,109,114,139,112]
-    
-    t_opt = [ 97,139,131,94,102,106,97,94,139,101,118,100,102,137,138,99,121,103,109,105,94,139,94,95,112,94]
-    utility = [1.68513504 ,0.14490158 ,0.37947703 ,2.25234775 ,1.1366983  ,0.92704742 ,1.54341902 ,2.23957092 ,0.30955075 ,1.10754327 ,0.54688461 ,1.30160695 ,1.10305379 ,0.32835869 ,0.3006956  ,1.43490351 ,0.49342578 ,1.12727342 ,0.76470072 ,1.03804126 ,2.06128099 ,0.29061078 ,2.53824248 ,1.78931474 ,0.67347802 ,2.35477999 ]
-
-    utility = ( np.asarray(utility) ) 
-
-
-
-    ax.set_ylabel("Daily reported infections")
-    ax.set_ylim([0,1500])
-    ax.set_xlim([mdates.date2num(dates[0]),mdates.date2num(dates[120])])
-
-
-    a = np.asarray(utility).argsort()[-10:][::-1]
-    col = ['brown','teal','crimson','yellow','orange','green','pink','lightblue','magenta','purple']
-    for j in range(10):
-        c = a[j]
-        d_opt = dates[t_opt[c]]
-        start = mdates.date2num(d_opt - timedelta(hours=10) )
-        end   = mdates.date2num(d_opt + timedelta(hours=10) )
-        width = end-start
-        rect = Rectangle( ( start,0 ), width, utility[c]*500,color=col[j],zorder=1000+10*j,alpha=0.5)
-        ax.add_patch(rect) 
-        height = rect.get_height()
-
-        dx = 0.0
-        if name[c] == 'BE':
-        	dx = 1.5
-        elif name[c] == 'GE':
-        	dx = -1.5
-
-        print (name[c],utility[c],t_opt[c]) #,d_opt[c])
-
-        ax.text(rect.get_x() + rect.get_width() / 2 + dx, height + 5, name[c],ha='center', va='bottom',zorder=1000+10*j)
-
-    #fig.legend(loc='upper left')
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.15),
-              ncol=2, fancybox=True, shadow=True)
-
-
-    ax.grid()
-    plt.tight_layout()
-    plt.show()
-    fig.savefig("second_wave.pdf",dpi=100 ,format="pdf")
-    print("Second wave plotted successfully.")
 
 
 
@@ -350,20 +260,12 @@ def confidence_intervals_daily_reported(result,case,m):
 if __name__=='__main__':
     argv = sys.argv[1:]
     parser = argparse.ArgumentParser()
-    parser.add_argument('--case'      ,type=int,default=2)
-    parser.add_argument('--wave'      ,type=int,default=0)
-    parser.add_argument('--scenarios' ,type=int,default=0)
+    parser.add_argument('--case',type=int,default=2)
     args = parser.parse_args(argv)
     case = args.case
-    wave = args.wave
     m = 1
-    if case > 0:
 
-        res = pickle.load( open( "case"+str(case) + "/cantons___"+str(case)+".pickle", "rb" ) )
-        #res = pickle.load( open( "case"+str(case) + "/cantons___"+str(case)+".pickle", "rb" ) )
-        #res = pickle.load( open( "case"+str(case) + "/cantons___"+str(case)+".pickle", "rb" ) )
-        res.summary()
-        posterior_plots(res,case)
-        confidence_intervals_daily_reported(res,case,m)
-        #if case == 3 and wave == 1:
-        #   plot_second_wave(res)
+    res = pickle.load( open( "case"+str(case) + "/cantons___"+str(case)+".pickle", "rb" ) )
+    res.summary()
+    posterior_plots(res,case)
+    confidence_intervals_daily_reported(res,case,m)

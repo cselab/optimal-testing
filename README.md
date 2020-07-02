@@ -1,6 +1,6 @@
 # Optimal Testing Strategies for Identification of Asymptomatic COVID-19 Infections
 
-This repository contains the code to compute optimal testing strategies to identify asymptomatic Infection.
+This repository contains the code to compute optimal testing strategies to identify asymptomatic infections for COVID-19 in Switzerland.
 
 It relies on three libraries:
 
@@ -46,27 +46,23 @@ In order to test whether this was successful run the command ``python3 -c "impor
    `python3 get-data.py`
 3. Run the sampling. Here you need to specify whether you assume an uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II, case=2) or all data available (Scenario III,case=3)
    `python3 nested.py` --case 2 --cores 12
-4. Wait for an eternity, especially for case=3 (at least 36 hours, no matter how many cores you use)
-5. Evaluate the model at the samples you took from steps 2,3,4 (uniform=0) or at uniformly distributed samples (uniform=1)
-   `python3 get-samples.py --uniform 0 --days 120 --samples 500`
+4. Nested-sampling will take a while.
+5. Evaluate the model at the samples you took from steps 2,3,4 or at uniformly distributed samples
+   `mpirun -n 16 ./samples_get.py --case X --samples 100`
+   This will produce 100x100 samples. They will be stored in directory caseX, X=1,2,3 in multiple files.
 6. Go back to the root directory, or login again if you fell asleep when nested sampling was running.
    `cd ..`
 7. Run the optimal sensor placement
-   `srun -u -n 240 ./sensor_placement.py --nSensors 3 --nMeasure 1 --path './nested-sampling' --nProcs 240 --Ny 500 --Ntheta 500 --start_day 84`
+   `mpirun -n 128 ./run-sequential.py --nSensors 3 --path './nested-sampling/caseX' --Ny 100 --Ntheta 100 --case X`
+    where X=1,2,3 
 
+## Plot the results (part 1/2, nested sampling)
+1. Go to the nested-sampling directory and run
+   `python3 plot.py --case Y`
+   where Y=2 or Y=3. This will produce the one-dimensional marginalized posteriors for the model and nuisance parameters as well as the fits for the reported cases in each canton.
 
-## Run the Optimal Testing with korali sampling
-1. Download data of reported infected people
-   `python3 get-data.py`
-2. Run the sampling. Here you need to specify whether you assume an uniform prior (Scenario I), an informed prior based on data before the first outbreak (Scenario II, case=2) or all data available (Scenario III,case=3)
-   `python3 run-sampling.py uniform/social-distancing/second-outbreak`
-3. Evaluate the model using the samples
-   `python3 run-model.py`
-4. Run the optimal sensor placement
-   `python3 run-optimal-sensor-placement.py`
-5. Plot the results 
-  `python3 plot-results.py`
+## Plot the results (part 2/2, sensor placement)
+1. Will be added soon.
 
 ## References
-
 Data [openZH database](https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv). For the inference on the swiss data we replace nan's with 0.
