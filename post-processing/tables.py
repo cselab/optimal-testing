@@ -81,6 +81,38 @@ def table2(v_list,min_day):
 
 
 
+def table3(v_list,min_day):
+  # v_list = utility[ number of sensors ] [ canton ] [ day ]
+  sensors = len(v_list)
+  cantons = 26
+  days    = len(v_list[0][0])
+  base    = datetime.datetime(2020, 2, 25) #February 25th, 2020
+  dates   = np.array([base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
+  date_form = DateFormatter("%b %d")
+
+  print("\\"+"begin{table}[h!]")
+  print("\centering")
+  print("\\"+"begin{tabular}{|c|c|c|}")
+  print("\hline")
+  print("Canton & Optimal Day & Estimated Expected Utility \\\ \hline")
+  for n in range (1) : #(sensors):
+      t = v_list[n][:][:]
+      max_utilities  = np.zeros(cantons,dtype=int)
+      max_utilities1 = np.zeros(cantons)
+      for c in range (cantons):
+          max_utilities [c] = np.argmax(t[c][:])
+          max_utilities1[c] = t[c][np.argmax(t[c][:])]
+      indices = (-max_utilities1).argsort()
+      max_utilities1 = max_utilities1[indices[::-1]]
+      max_utilities  = max_utilities [indices[::-1]]
+      for c in indices : #range (cantons):
+          print(name[c],"&",dates[max_utilities[c]].strftime("%B %d"),"&","{:6.3f}".format(t[c][max_utilities[c]]),"\\\ \hline  ")
+  print("\end{tabular}")
+  print("\caption{Optimal measurement days per canton after loosening of measures.}")
+  print("\label{table:case3}")
+  print("\end{table}")
+
+
 
 
 r1 = np.load("result_Ny00800_Nt00800_1.npy")
@@ -88,3 +120,6 @@ table1(r1,0)
 print("")
 r2 = np.load("result_Ny00800_Nt00800_2.npy")
 table2(r2,21)
+print("")
+r3 = np.load("result_Ny00800_Nt00800_3.npy")
+table3(r3,102)
