@@ -25,6 +25,6 @@ T_E_CASE_2 = 21 + 14
 
 #Case III: Loosening of measures annoucned
 #Data is available for the first 102 days and sensors are placed in the next 38 days.
-T_DATA_CASE_3 = 21
+T_DATA_CASE_3 = 102
 T_S_CASE_3 = 102
 T_E_CASE_3 = 102 + 38
