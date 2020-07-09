@@ -184,6 +184,9 @@ if __name__ == '__main__':
       elif args.case == 3:
          res = pickle.load( open("case3/samples_3.pickle", "rb" ) )
          results =  Posterior_Samples(days,args.samples,res)
+      elif args.case == 4:
+         res = pickle.load( open("case3/samples_4.pickle", "rb" ) )
+         results =  Posterior_Samples(days,args.samples,res)
 
       comm = MPI.COMM_WORLD
       rank = comm.Get_rank()

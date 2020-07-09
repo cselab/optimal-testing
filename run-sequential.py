@@ -28,7 +28,6 @@ if args['case'] == 2:
 if args['case'] == 3:
    start_day = T_S_CASE_3
    days      = T_E_CASE_3
-
 if args['case'] == 4: #case 3b
    start_day = T_S_CASE_4
    days      = T_E_CASE_4
@@ -69,3 +68,5 @@ if rank == size-1:
      np.save("result_Ny{:05d}_Nt{:05d}_2.npy".format(osp.Ny,osp.Ntheta),utility)
   if case == 3:   
      np.save("result_Ny{:05d}_Nt{:05d}_3.npy".format(osp.Ny,osp.Ntheta),utility)
+  if case == 4:   
+     np.save("result_Ny{:05d}_Nt{:05d}_4.npy".format(osp.Ny,osp.Ntheta),utility)

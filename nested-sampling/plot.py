@@ -14,32 +14,27 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 
-####################################################################################################
 def resample_equal_with_idx(samples, weights, rstate=None):
-####################################################################################################
-     if rstate is None:
-         rstate = np.random
-
-     if abs(np.sum(weights) - 1.) > 1e-9:  # same tol as in np.random.choice.
-         # Guarantee that the weights will sum to 1.
-         warnings.warn("Weights do not sum to 1 and have been renormalized.")
-         weights = np.array(weights) / np.sum(weights)
-
-     # Make N subdivisions and choose positions with a consistent random offset.
-     nsamples = len(weights)
-     positions = (rstate.random() + np.arange(nsamples)) / nsamples
-
-     # Resample the data.
-     idx = np.zeros(nsamples, dtype=np.int)
-     cumulative_sum = np.cumsum(weights)
-     i, j = 0, 0
-     while i < nsamples:
-         if positions[i] < cumulative_sum[j]:
-             idx[i] = j
-             i += 1
-         else:
-             j += 1
-     return samples[idx], idx
+  if rstate is None:
+      rstate = np.random
+  if abs(np.sum(weights) - 1.) > 1e-9:  # same tol as in np.random.choice.
+      # Guarantee that the weights will sum to 1.
+      warnings.warn("Weights do not sum to 1 and have been renormalized.")
+      weights = np.array(weights) / np.sum(weights)
+  # Make N subdivisions and choose positions with a consistent random offset.
+  nsamples = len(weights)
+  positions = (rstate.random() + np.arange(nsamples)) / nsamples
+  # Resample the data.
+  idx = np.zeros(nsamples, dtype=np.int)
+  cumulative_sum = np.cumsum(weights)
+  i, j = 0, 0
+  while i < nsamples:
+      if positions[i] < cumulative_sum[j]:
+          idx[i] = j
+          i += 1
+      else:
+          j += 1
+  return samples[idx], idx
 
 def getPosteriorFromResult(result):
     from dynesty import utils as dyfunc
@@ -111,7 +106,9 @@ def confidence_intervals_daily_reported(result,case,m):
     days_data = T_DATA_CASE_2 
     if case == 3:
        days_data = T_DATA_CASE_3
-    days = days_data #+ 10
+    if case == 4:
+       days_data = T_DATA_CASE_4
+    days = days_data
     print(days)
 
     p = 0.99   
@@ -210,12 +207,9 @@ def confidence_intervals_daily_reported(result,case,m):
 
     handles, labels = axs[4,1].get_legend_handles_labels()
     fig.legend(handles, labels, loc='lower center',ncol=1,bbox_to_anchor=(0.6, 0.1),fontsize='xx-large')
-    #fig.set_size_inches(14.5, 10.5)
     fig.set_size_inches(20.0, 20.0)
     plt.tight_layout()
-    #fig.savefig("case" + str(case) + "_prediction_cantons.pdf",dpi=1000 ,format="pdf")
     fig.savefig("cantons.pdf",dpi=1000 ,format="pdf")
-    #plt.show()
     print("Done plotting predictions.")
 
 

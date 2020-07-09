@@ -64,7 +64,7 @@ def model_transformation_4(u):
     x[10] = u[10]*x[5]#theta 1
     x[11] = u[11]*x[5]#theta 2
     
-    x[12] = 100 + 20*u[12]#d3
+    x[12] = 108 + u[12] #100 + 20*u[12]#d3
     x[13] = 0.03   * u[13]#lambda
 
     for i in range(14,14+ic_cantons):
@@ -166,7 +166,6 @@ if __name__=='__main__':
        model = model_3
        model_transformation = model_transformation_3
        ndim = 12 + ic_cantons + 1
-
     if args.case == 4:
        model = model_4
        model_transformation = model_transformation_4
