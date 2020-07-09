@@ -20,11 +20,18 @@ T_E_CASE_1 = 8
 #Case II: First intervention announced
 #Data is available for the first 21 days and sensors are placed in the next two weeks.
 T_DATA_CASE_2 = 21
-T_S_CASE_2 = 21
+T_S_CASE_2 = T_DATA_CASE_2
 T_E_CASE_2 = 21 + 14
 
 #Case III: Loosening of measures annoucned
 #Data is available for the first 102 days and sensors are placed in the next 38 days.
 T_DATA_CASE_3 = 102
-T_S_CASE_3 = 102
-T_E_CASE_3 = 102 + 38
+T_S_CASE_3 = T_DATA_CASE_3
+T_E_CASE_3 = 102 + 8
+
+
+#Case IV: Loosening of measures annoucned
+#Data is available for the first 136 days and sensors are placed in the next 38 days.
+T_DATA_CASE_4 = 136 #July 9
+T_S_CASE_4 = T_DATA_CASE_4
+T_E_CASE_4 = T_S_CASE_4 + 8

@@ -39,6 +39,10 @@ def Posterior_Samples(days,samples,res):
 
     params = s.shape[1] - 1 # -1 for the dispersion
     THETA = []
+
+    dispersion = np.zeros(samples)
+    i = 0
+
     ####################################
     if params == 6 + ic_cantons: #case 2
     ####################################
@@ -49,12 +53,23 @@ def Posterior_Samples(days,samples,res):
     ####################################
         for ID in numbers:
             THETA.append(s[ID,0:12]) #(b0,mu,alpha,Z,D,theta,b1,b2,d1,d2,theta1,theta2)
+            dispersion[i] = s[ID,-1]
+            i += 1
+    ####################################
+    elif params == 12 + ic_cantons + 2: #case 4
+    ####################################
+        for ID in numbers:
+            THETA.append(s[ID,0:14]) #(b0,mu,alpha,Z,D,theta,b1,b2,d1,d2,theta1,theta2,d3,lambda)
+            dispersion[i] = s[ID,-1]
+            i += 1
 
     All_results  = np.zeros((int(days),samples//N,samples//N,26))
 
     print (rank , All_results.shape)
     iii = 0
     for isim1 in range(rank_1*samples//N,(rank_1+1)*samples//N):
+      if rank == 0:
+         print(isim1)
       for isim2 in range(rank_2*samples//N,(rank_2+1)*samples//N):
         p = []
         for i in range(len(THETA[0])):
@@ -62,11 +77,17 @@ def Posterior_Samples(days,samples,res):
         for i in range(ic_cantons):
           p.append(P[i,isim2])
         results = example_run_seiin(days,p)
+        aux = p[2]/p[3]
         for day in range(days):
             All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  results[day].Iu()
+            #All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  aux* np.asarray(results[day].E())
         iii += 1
     print ("Rank",rank,"completed evaluations",flush=True)
     comm.Barrier()
+
+    #np.save("runs.npy",All_results)
+    #np.save("dispersion.npy",dispersion)
+
     return All_results
 
 def Uniform_Samples(days,samples):
@@ -140,7 +161,10 @@ if __name__ == '__main__':
       elif args.case == 2:
          days = 60
       elif args.case == 3:
+         days = 120
+      elif args.case == 4:
          days = 160
+
 
       comm = MPI.COMM_WORLD
       rank = comm.Get_rank()
@@ -155,10 +179,10 @@ if __name__ == '__main__':
       if args.case == 1:
          results = Uniform_Samples    (days,args.samples)
       elif args.case == 2:
-         res = pickle.load( open("case2/cantons___2.pickle", "rb" ) )
+         res = pickle.load( open("case2/samples_2.pickle", "rb" ) )
          results = Posterior_Samples(days,args.samples,res)
       elif args.case == 3:
-         res = pickle.load( open("case3/cantons___3.pickle", "rb" ) )
+         res = pickle.load( open("case3/samples_3.pickle", "rb" ) )
          results =  Posterior_Samples(days,args.samples,res)
 
       comm = MPI.COMM_WORLD

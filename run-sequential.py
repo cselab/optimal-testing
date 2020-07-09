@@ -29,6 +29,12 @@ if args['case'] == 3:
    start_day = T_S_CASE_3
    days      = T_E_CASE_3
 
+if args['case'] == 4: #case 3b
+   start_day = T_S_CASE_4
+   days      = T_E_CASE_4
+
+
+
 osp = OSP(path=args['path'],nSensors=args['nSensors'],Ny=args['Ny'],Ntheta=args['Ntheta'],start_day=start_day,days=days,korali=1)
 
 # Starting Korali's Engine

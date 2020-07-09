@@ -74,6 +74,12 @@ def posterior_plots(result,case):
        lab.extend(names)
        jmax_1 = 5 
        jmax_2 = 5
+    elif case == 4:
+       lab2 = ["θ\u2080","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082","d\u2083","λ"]
+       lab.extend(lab2)
+       lab.extend(names)
+       jmax_1 = 5 
+       jmax_2 = 6
 
     fig,ax = plt.subplots(jmax_1,jmax_2)
     num_bins = 20
@@ -85,10 +91,11 @@ def posterior_plots(result,case):
           fig.delaxes(ax_loc)
        else:
           hist, bins, _ = ax_loc.hist(samplesTmp[:, i], num_bins,  color="green", ec='black',alpha=0.5,density=True)
-          ax_loc.tick_params(axis='both', which='major', labelsize=4)
-          ax_loc.set_title(lab[i],fontsize=8)
+          ax_loc.tick_params(axis='both', which='major', labelsize=12)
+          ax_loc.set_title(lab[i],fontsize=14)
        i += 1
-    fig.tight_layout()
+    #fig.tight_layout()
+    fig.set_size_inches(16.0, 16.0)
     fig.savefig("posterior"+str(case)+".pdf",dpi=1000)
 
 
@@ -104,7 +111,8 @@ def confidence_intervals_daily_reported(result,case,m):
     days_data = T_DATA_CASE_2 
     if case == 3:
        days_data = T_DATA_CASE_3
-    days = days_data + 10
+    days = days_data #+ 10
+    print(days)
 
     p = 0.99   
     base      = datetime(2020, 2, 25) #February 25th, 2020
@@ -170,7 +178,7 @@ def confidence_intervals_daily_reported(result,case,m):
               fig.delaxes(axs[i0][i1])
         else:
            samples_tot     = samples.shape[0] // m
-           samples_per_day = 10
+           samples_per_day = 50
            sam = np.zeros((days,samples_tot*samples_per_day))
            for d in range(days):
               print(d,days,index)
@@ -189,19 +197,25 @@ def confidence_intervals_daily_reported(result,case,m):
                cases = simulation[i].E() 
                c_data.append( parameters[2]/parameters[3]*cases[index] )
            axs[i0,i1].plot(dates,c_data,label="maximum a posteriori estimate",linewidth=2,color="blue")
-           axs[i0,i1].scatter(dates2,data[index,0:days_data],s=1.0,label="data",color="red")           
+           axs[i0,i1].scatter(dates2,data[index,0:days_data],s=10.0,label="data",color="red")           
            axs[i0,i1].text(.5,1.05,NAMES[index],horizontalalignment='center',transform=axs[i0,i1].transAxes)
            axs[i0,i1].xaxis.set_major_locator(locator)
            axs[i0,i1].xaxis.set_minor_locator(locator2)
            axs[i0,i1].xaxis.set_major_formatter(formatter)
            axs[i0,i1].set(xlabel='', ylabel='Infections')
            axs[i0,i1].grid()
+           for label in axs[i0,i1].get_xticklabels():
+                label.set_rotation(40)
+                label.set_horizontalalignment('right')
+
     handles, labels = axs[4,1].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='lower center',ncol=2,bbox_to_anchor=(0.6, 0.1))
-    fig.set_size_inches(14.5, 10.5)
+    fig.legend(handles, labels, loc='lower center',ncol=1,bbox_to_anchor=(0.6, 0.1),fontsize='xx-large')
+    #fig.set_size_inches(14.5, 10.5)
+    fig.set_size_inches(20.0, 20.0)
     plt.tight_layout()
-    fig.savefig("case" + str(case) + "_prediction_cantons.pdf",dpi=100 ,format="pdf")
-    plt.show()
+    #fig.savefig("case" + str(case) + "_prediction_cantons.pdf",dpi=1000 ,format="pdf")
+    fig.savefig("cantons.pdf",dpi=1000 ,format="pdf")
+    #plt.show()
     print("Done plotting predictions.")
 
 
@@ -215,4 +229,4 @@ if __name__=='__main__':
     res = pickle.load( open( "case"+str(case) + "/samples_"+str(case)+".pickle", "rb" ) )
     res.summary()
     posterior_plots(res,case)
-    confidence_intervals_daily_reported(res,case,m)
+    #confidence_intervals_daily_reported(res,case,m)

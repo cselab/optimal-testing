@@ -34,7 +34,7 @@ def table1(v_list,min_day):
   print("\centering")
   print("\\"+"begin{tabular}{|c|c|c|}")
   print("\hline")
-  print("Canton & Optimal Day & Estimated Expected Utility \\\ \hline")
+  print("Canton & Date & Utility \\\ \hline")
   for n in range (1) : #(sensors):
       t = v_list[n][:][:]
       max_utilities  = np.zeros(cantons,dtype=int)
@@ -46,7 +46,7 @@ def table1(v_list,min_day):
       max_utilities1 = max_utilities1[indices[::-1]]
       max_utilities  = max_utilities [indices[::-1]]
       for c in indices : #range (cantons):
-          print(name[c],"&",dates[max_utilities[c]].strftime("%B %d"),"&","{:6.3f}".format(t[c][max_utilities[c]]),"\\\ \hline  ")
+          print(name[c],"&",dates[max_utilities[c]].strftime("%d-%m"),"&","{:6.3f}".format(t[c][max_utilities[c]]),"\\\ \hline  ")
   print("\end{tabular}")
   print("\caption{Optimal measurement days per canton after the outbreak of a new disease.}")
   print("\label{table:case1}")
@@ -66,14 +66,14 @@ def table2(v_list,min_day):
   print("\centering")
   print("\\"+"begin{tabular}{|c|c|c|}")
   print("\hline")
-  print("Day &  Proposed Cantons & Estimated Expected Utility  \\\ \hline")
+  print("Date &  Proposed Cantons & Estimated Expected Utility  \\\ \hline")
   for d in range(min_day,days):
       t = v_list[0,:,d]
       indices = (-t).argsort()
       i0 = indices[0]
       i1 = indices[1]
       i2 = indices[2]
-      print(dates[d].strftime("%B %d"),"&", name[i0],name[i1],name[i2],"&", "{:6.3f}".format(t[i0]),"{:6.3f}".format(t[i1]),"{:6.3f}".format(t[i2]),"\\\ \hline  ")
+      print(dates[d].strftime("%d-%m"),"&", name[i0],name[i1],name[i2],"&", "{:6.3f}".format(t[i0]),"{:6.3f}".format(t[i1]),"{:6.3f}".format(t[i2]),"\\\ \hline  ")
   print("\end{tabular}")
   print("\caption{Three highest value of the estimated expected utility at a particular day during the lock-down.}")
   print("\label{table:case2}")
@@ -115,11 +115,12 @@ def table3(v_list,min_day):
 
 
 
-r1 = np.load("result_Ny00800_Nt00800_1.npy")
-table1(r1,0)
-print("")
-r2 = np.load("result_Ny00800_Nt00800_2.npy")
-table2(r2,21)
+#r1 = np.load("result_Ny00800_Nt00800_1.npy")
+#table1(r1,0)
+#print("")
+#r2 = np.load("result_Ny00800_Nt00800_2.npy")
+#table2(r2,21)
 print("")
 r3 = np.load("result_Ny00800_Nt00800_3.npy")
-table3(r3,102)
+table1(r3,102)
+table2(r3,102)
