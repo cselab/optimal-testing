@@ -70,11 +70,11 @@ def posterior_plots(result,case):
        jmax_1 = 5 
        jmax_2 = 5
     elif case == 4:
-       lab2 = ["θ\u2080","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082","d\u2083","λ"]
+       lab2 = ["θ\u2080","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082","λ"]
        lab.extend(lab2)
        lab.extend(names)
-       jmax_1 = 5 
-       jmax_2 = 6
+       jmax_1 = 6 
+       jmax_2 = 5
 
     fig,ax = plt.subplots(jmax_1,jmax_2)
     num_bins = 20
@@ -223,4 +223,5 @@ if __name__=='__main__':
     res = pickle.load( open( "case"+str(case) + "/samples_"+str(case)+".pickle", "rb" ) )
     res.summary()
     posterior_plots(res,case)
+    plt.show()
     #confidence_intervals_daily_reported(res,case,m)

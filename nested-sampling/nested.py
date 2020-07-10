@@ -64,12 +64,13 @@ def model_transformation_4(u):
     x[10] = u[10]*x[5]#theta 1
     x[11] = u[11]*x[5]#theta 2
     
-    x[12] = 108 + u[12] #100 + 20*u[12]#d3
-    x[13] = 0.03   * u[13]#lambda
+    #x[12] = 100 + 20*u[12]#d3
+    #x[12] = 102 + 0.5*u[12]#d3
+    x[12] = 0.03   * u[12]#lambda
 
-    for i in range(14,14+ic_cantons):
+    for i in range(13,13+ic_cantons):
         x[i] = 50*u[i]
-    x[14+ic_cantons] = u[14+ic_cantons]*0.5#dispersion
+    x[13+ic_cantons] = u[13+ic_cantons]*0.5#dispersion
     return x
 
 def model_2(THETA):
@@ -169,7 +170,7 @@ if __name__=='__main__':
     if args.case == 4:
        model = model_4
        model_transformation = model_transformation_4
-       ndim = 12 + ic_cantons + 1 + 2
+       ndim = 12 + ic_cantons + 1 + 1
 
     t = -time.time()
     fname = 'samples_' + str(args.case) + '.pickle'
@@ -182,3 +183,7 @@ if __name__=='__main__':
         pickle.dump(res, f)
     t += time.time()
     print("Total time=",t)
+
+    fname = '__samples_' + str(args.case) + str(args.nlive) + '.pickle'
+    with open(fname, 'wb') as f:
+        pickle.dump(res, f)
