@@ -76,7 +76,9 @@ def posterior_plots(result,case):
        jmax_1 = 6 
        jmax_2 = 5
 
-    fig,ax = plt.subplots(jmax_1,jmax_2)
+    jmax_1 = 6 
+    jmax_2 = 5
+    fig,ax = plt.subplots(jmax_1,jmax_2,figsize=(50,50))
     num_bins = 20
     i = 0
     for j1 in range(jmax_1):
@@ -86,12 +88,22 @@ def posterior_plots(result,case):
           fig.delaxes(ax_loc)
        else:
           hist, bins, _ = ax_loc.hist(samplesTmp[:, i], num_bins,  color="green", ec='black',alpha=0.5,density=True)
-          ax_loc.tick_params(axis='both', which='major', labelsize=12)
-          ax_loc.set_title(lab[i],fontsize=14)
+          ax_loc.tick_params(axis='both', which='major', labelsize=22)
+          ax_loc.set_title(lab[i],fontsize=30)
+          ax_loc.xaxis.set_major_locator(plt.MaxNLocator(4))
+          ax_loc.yaxis.set_major_locator(plt.MaxNLocator(5))
        i += 1
     #fig.tight_layout()
-    fig.set_size_inches(16.0, 16.0)
-    fig.savefig("posterior"+str(case)+".pdf",dpi=1000)
+    '''
+    if case == 2:
+      fig.set_size_inches(20.0, 25.0)
+    elif case == 3:
+      fig.set_size_inches(25.0, 25.0)
+    elif case == 4:
+      fig.set_size_inches(30.0, 25.0)
+    '''
+
+    fig.savefig("posterior"+str(case)+".pdf",dpi=1000,bbox_inches = 'tight',pad_inches = 0.2)
 
 
 def model(days,p):
@@ -223,5 +235,5 @@ if __name__=='__main__':
     res = pickle.load( open( "case"+str(case) + "/samples_"+str(case)+".pickle", "rb" ) )
     res.summary()
     posterior_plots(res,case)
-    plt.show()
+    #plt.show()
     #confidence_intervals_daily_reported(res,case,m)

@@ -79,8 +79,8 @@ def Posterior_Samples(days,samples,res):
         results = example_run_seiin(days,p)
         aux = p[2]/p[3]
         for day in range(days):
-            All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  results[day].Iu()
-            #All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  aux* np.asarray(results[day].E())
+            #All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  results[day].Iu()
+            All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  aux* np.asarray(results[day].E())
         iii += 1
     print ("Rank",rank,"completed evaluations",flush=True)
     comm.Barrier()
@@ -161,7 +161,7 @@ if __name__ == '__main__':
       elif args.case == 2:
          days = 60
       elif args.case == 3:
-         days = 120
+         days = 110
       elif args.case == 4:
          days = 160
 
