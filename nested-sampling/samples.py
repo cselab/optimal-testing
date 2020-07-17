@@ -56,10 +56,10 @@ def Posterior_Samples(days,samples,res):
             dispersion[i] = s[ID,-1]
             i += 1
     ####################################
-    elif params == 12 + ic_cantons + 2: #case 4
+    elif params == 12 + ic_cantons + 1: #case 4
     ####################################
         for ID in numbers:
-            THETA.append(s[ID,0:14]) #(b0,mu,alpha,Z,D,theta,b1,b2,d1,d2,theta1,theta2,d3,lambda)
+            THETA.append(s[ID,0:13]) #(b0,mu,alpha,Z,D,theta,b1,b2,d1,d2,theta1,theta2,lambda)
             dispersion[i] = s[ID,-1]
             i += 1
 
@@ -85,8 +85,8 @@ def Posterior_Samples(days,samples,res):
     print ("Rank",rank,"completed evaluations",flush=True)
     comm.Barrier()
 
-    #np.save("runs.npy",All_results)
-    #np.save("dispersion.npy",dispersion)
+    np.save("runs.npy",All_results)
+    np.save("dispersion.npy",dispersion)
 
     return All_results
 
@@ -157,13 +157,13 @@ if __name__ == '__main__':
 
       days = 0
       if args.case == 1:
-         days = 30
+         days = 20
       elif args.case == 2:
          days = 60
       elif args.case == 3:
-         days = 110
+         days = 120
       elif args.case == 4:
-         days = 160
+         days = 150
 
 
       comm = MPI.COMM_WORLD
@@ -185,7 +185,7 @@ if __name__ == '__main__':
          res = pickle.load( open("case3/samples_3.pickle", "rb" ) )
          results =  Posterior_Samples(days,args.samples,res)
       elif args.case == 4:
-         res = pickle.load( open("case3/samples_4.pickle", "rb" ) )
+         res = pickle.load( open("case4/samples_4.pickle", "rb" ) )
          results =  Posterior_Samples(days,args.samples,res)
 
       comm = MPI.COMM_WORLD

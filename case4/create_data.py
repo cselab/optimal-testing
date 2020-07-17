@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import pickle,os,sys,argparse,scipy,random
-sys.path.append('../nested-sampling'))
+sys.path.append('../nested-sampling')
 from seiin import *
 from scipy.stats import multivariate_normal
 
@@ -76,7 +76,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--case'  ,type=int)
     args = parser.parse_args(argv)
-    days = 21
+    days = 20
     if args.case == 2:
       days = 60
     GetNewSamples(day_max=days,case=args.case)
