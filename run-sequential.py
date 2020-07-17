@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse,sys
 from mpi4py import MPI
-sys.path.append('../covid19/applications/osp/')
 from osp import *
 from common import *
 
