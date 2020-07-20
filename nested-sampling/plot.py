@@ -55,9 +55,9 @@ def posterior_plots(result,case):
     numentries = len(samples)
     samplesTmp = np.reshape(samples, (numentries, numdim))
     lab= ["b\u2080","μ","α","Z","D"] 
-    names = [r'$I^{AG}_u$',r'$I^{BE}_u$',r'$I^{BL}_u$', r'$I^{BS}_u$',
-             r'$I^{FR}_u$',r'$I^{GE}_u$',r'$I^{GR}_u$', r'$I^{SG}_u$',
-             r'$I^{TI}_u$',r'$I^{VD}_u$',r'$I^{VS}_u$', r'$I^{ZH}_u$',"r"]
+    names = [r'$I^u_{AG}$',r'$I^u_{BE}$',r'$I^u_{BL}$', r'$I^u_{BS}$',
+             r'$I^u_{FR}$',r'$I^u_{GE}$',r'$I^u_{GR}$', r'$I^u_{SG}$',
+             r'$I^u_{TI}$',r'$I^u_{VD}$',r'$I^u_{VS}$', r'$I^u_{ZH}$',"r"]
     if case == 2:
        lab.append("θ")
        lab.extend(names)
@@ -171,8 +171,8 @@ def confidence_intervals_daily_reported(result,case,m):
     qlo  = np.quantile ( a= prediction_matrix , q = 0.5 - p/2 , axis = 0)
     qhi  = np.quantile ( a= prediction_matrix , q = 0.5 + p/2 , axis = 0)
     plt.plot(dates ,q50       ,label='median prediction',zorder=1,color="black")
-    plt.fill_between(dates, qlo, qhi,label=str(100*p)+"% credible interval",color="green")
-    fig.legend()
+    plt.fill_between(dates, qlo, qhi,label=str(100*p)+"% confidence interval",color="green")
+    #fig.legend()
     ax.grid()
     fig.savefig("case" + str(case) + "_prediction_country.pdf",dpi=100 ,format="pdf")
 
@@ -198,7 +198,7 @@ def confidence_intervals_daily_reported(result,case,m):
                 sam [d,s*samples_per_day:(s+1)*samples_per_day]  = np.random.negative_binomial(n=dispersion, p=pr, size=samples_per_day)
            qlo  = np.quantile ( a= sam , q = 0.5 - p/2 , axis = 1)
            qhi  = np.quantile ( a= sam , q = 0.5 + p/2 , axis = 1)
-           axs[i0,i1].fill_between(dates, qlo, qhi,label=str(100*p) + "% credible interval",color="green")
+           axs[i0,i1].fill_between(dates, qlo, qhi,label=str(100*p) + "% confidence interval",alpha=0.4,color="green")
            x=[]
            prediction = [] 
            c_data = []
@@ -217,8 +217,8 @@ def confidence_intervals_daily_reported(result,case,m):
                 label.set_rotation(40)
                 label.set_horizontalalignment('right')
 
-    handles, labels = axs[4,1].get_legend_handles_labels()
-    fig.legend(handles, labels, loc='lower center',ncol=1,bbox_to_anchor=(0.6, 0.1),fontsize='xx-large')
+    #handles, labels = axs[4,1].get_legend_handles_labels()
+    #fig.legend(handles, labels, loc='lower center',ncol=1,bbox_to_anchor=(0.6, 0.1),fontsize='xx-large')
     fig.set_size_inches(20.0, 20.0)
     plt.tight_layout()
     fig.savefig("cantons.pdf",dpi=1000 ,format="pdf")
@@ -231,9 +231,8 @@ if __name__=='__main__':
     parser.add_argument('--case',type=int,default=2)
     args = parser.parse_args(argv)
     case = args.case
-    m = 1
+    m = 1 
     res = pickle.load( open( "case"+str(case) + "/samples_"+str(case)+".pickle", "rb" ) )
     res.summary()
-    posterior_plots(res,case)
-    #plt.show()
-    #confidence_intervals_daily_reported(res,case,m)
+    #posterior_plots(res,case)
+    confidence_intervals_daily_reported(res,case,m)
