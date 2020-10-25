@@ -62,7 +62,12 @@ In order to test whether this was successful run the command ``python3 -c "impor
    where Y=2 or Y=3. This will produce the one-dimensional marginalized posteriors for the model and nuisance parameters as well as the fits for the reported cases in each canton.
 
 ## Plot the results (part 2/2, sensor placement)
-1. Will be added soon.
+1. Go to the figures directory
+3. To plot the illustration of the different cases, run `python3 plot-scenarios.py`. The resulting figure can be found in caseY/.
+2. Run the plotting script `python3 plot-ots.py --case Y` where Y=1,2,3. This will create the plots for the different cases as shown in the publication. The figures are saved in figures/caseY.
+3. To create the tables from the Supplementary Information, run `python3 print-tables.py --case Y` for Y=1,2,3. The generated screen output can be copy pasted to gernerate the tables in latex.
+4. The comparison of the effectiveness of the different strategies can be done `python3 plot-effectiveness.py`. The figures are saved in figures/effectiveness.
+
 
 ## References
 1. Data [openZH database](https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv). For the inference on the swiss data we do not use the NaN values.
