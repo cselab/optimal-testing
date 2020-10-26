@@ -5,13 +5,6 @@
 
 namespace epidemics {
 
-/// A data value for the given region and day.
-struct DataPoint {
-    int day;
-    int region;
-    double value;
-};
-
 /// Model bulk parameters (design parameters, not optimized for).
 struct ModelData {
     // Note: The following files depend on the structure of this struct:
@@ -41,28 +34,5 @@ struct ModelData {
 
     void init();
 };
-
-/// UQ-specific data
-struct ReferenceData {
-    // Note: py/model.py:ReferenceData.to_cpp depends on this structure.
-
-    /// List of known number of cases.
-    std::vector<DataPoint> cases;
-
-    /// Represent all known data point values into a single vector.
-    /// Used for setting up Korali.
-    std::vector<double> getReferenceData() const;
-
-    /*
-    /// Extract number of infected people for days and regions for which we
-    /// have measured data, in the same order as the values returned by
-    /// `getReferenceData()`.
-    std::vector<double> getReferenceEvaluations(
-            const std::vector<State> &states) const;
-    */
-};
-
-ModelData readModelData(const char *filename = "data/cpp_model_data.dat");
-ReferenceData readReferenceData(const char *filename = "data/cpp_reference_data.dat");
 
 }  // namespace epidemics
