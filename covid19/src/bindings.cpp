@@ -176,14 +176,11 @@ PYBIND11_MODULE(libepidemics, m)
 {
     using namespace epidemics;
 
-    auto cantons = m.def_submodule("cantons");
-
     // Export the model.
-    auto seiin_interventions = cantons.def_submodule("seiin_interventions");
-    exportParameters(seiin_interventions);
-    exportState(seiin_interventions);
-    exportSolver(seiin_interventions);
+    exportParameters(m);
+    exportState(m);
+    exportSolver(m);
 
     // Export model data (design parameters).
-    exportModelData(cantons);
+    exportModelData(m);
 }

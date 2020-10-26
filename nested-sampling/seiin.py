@@ -51,7 +51,7 @@ def example_run_seiin(num_days, inputs, int_day=T_S_CASE_2):
     IR0[data.key_to_index['TI']] = 1  # Ticino.
 
     if L == 6 + ic_cantons: #inference/model evaluations for case 2 
-       params = libepidemics.cantons.seiin_interventions.Parameters(
+       params = libepidemics.Parameters(
                  beta  =inputs[0],
                  mu    =inputs[1],
                  alpha =inputs[2],
@@ -75,14 +75,14 @@ def example_run_seiin(num_days, inputs, int_day=T_S_CASE_2):
        S0 = [N - E - IR - IU for N, E, IR, IU in zip(N0, E0, IR0, IU0)]
        y0 = S0 + E0 + IR0 + IU0 + N0
        # Run the ODE solver.
-       solver = libepidemics.cantons.seiin_interventions.Solver(data.to_cpp())
-       y0 = libepidemics.cantons.seiin_interventions.State(y0)
+       solver = libepidemics.Solver(data.to_cpp())
+       y0 = libepidemics.State(y0)
        return solver.solve(params, y0, t_eval=range(1, num_days + 1))
 
 
     if L == 12 + ic_cantons : #inference/model evaluations for case 3 
 
-       params = libepidemics.cantons.seiin_interventions.Parameters(
+       params = libepidemics.Parameters(
                  beta  =inputs[0],
                  mu    =inputs[1],
                  alpha =inputs[2],
@@ -106,14 +106,14 @@ def example_run_seiin(num_days, inputs, int_day=T_S_CASE_2):
           k += 1
        S0 = [N - E - IR - IU for N, E, IR, IU in zip(N0, E0, IR0, IU0)]
        y0 = S0 + E0 + IR0 + IU0 + N0
-       solver = libepidemics.cantons.seiin_interventions.Solver(data.to_cpp())
-       y0 = libepidemics.cantons.seiin_interventions.State(y0)
+       solver = libepidemics.Solver(data.to_cpp())
+       y0 = libepidemics.State(y0)
        return solver.solve(params, y0, t_eval=range(1, num_days + 1))
 
 
     if L == 12 + ic_cantons + 1: #inference/model evaluations for case 3b 
 
-       params = libepidemics.cantons.seiin_interventions.Parameters(
+       params = libepidemics.Parameters(
                  beta  =inputs[0],
                  mu    =inputs[1],
                  alpha =inputs[2],
@@ -139,14 +139,14 @@ def example_run_seiin(num_days, inputs, int_day=T_S_CASE_2):
           k += 1
        S0 = [N - E - IR - IU for N, E, IR, IU in zip(N0, E0, IR0, IU0)]
        y0 = S0 + E0 + IR0 + IU0 + N0
-       solver = libepidemics.cantons.seiin_interventions.Solver(data.to_cpp())
-       y0 = libepidemics.cantons.seiin_interventions.State(y0)
+       solver = libepidemics.Solver(data.to_cpp())
+       y0 = libepidemics.State(y0)
        return solver.solve(params, y0, t_eval=range(1, num_days + 1))
 
 
     if L == 12 + ic_cantons + 2: #inference/model evaluations for case 3b 
 
-       params = libepidemics.cantons.seiin_interventions.Parameters(
+       params = libepidemics.Parameters(
                  beta  =inputs[0],
                  mu    =inputs[1],
                  alpha =inputs[2],
@@ -172,8 +172,8 @@ def example_run_seiin(num_days, inputs, int_day=T_S_CASE_2):
           k += 1
        S0 = [N - E - IR - IU for N, E, IR, IU in zip(N0, E0, IR0, IU0)]
        y0 = S0 + E0 + IR0 + IU0 + N0
-       solver = libepidemics.cantons.seiin_interventions.Solver(data.to_cpp())
-       y0 = libepidemics.cantons.seiin_interventions.State(y0)
+       solver = libepidemics.Solver(data.to_cpp())
+       y0 = libepidemics.State(y0)
        return solver.solve(params, y0, t_eval=range(1, num_days + 1))
 
 
