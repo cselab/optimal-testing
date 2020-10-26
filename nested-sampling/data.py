@@ -2,7 +2,7 @@
 import numpy as np
 import os,sys
 sys.path.append('../covid19/')
-import epidemics.data.swiss_cantons as swiss_cantons
+import epidemics.swiss_cantons as swiss_cantons
 
 def get_canton_reference_data():
     cases_per_country = swiss_cantons.fetch_openzh_covid_data()
@@ -24,17 +24,6 @@ def nan_helper(y):
 
 def prepareData(days = -1,country = False):    
     cantons = 26
-    '''
-    IR = get_canton_reference_data()
-    days = len(IR['TI'])
-    data = np.zeros((cantons,days))
-    for c in range(cantons):
-        c_i = name[c]
-        data[c,0] = IR[c_i][0]
-        for d in range(1,days):
-            data[c,d] = IR[c_i][d] - IR[c_i][d-1]
-    np.save("canton_daily_cases.npy",data)
-    '''
     data = np.load("canton_daily_cases.npy")
 
     if days == -1:

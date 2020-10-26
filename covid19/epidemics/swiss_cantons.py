@@ -12,12 +12,16 @@ import pathlib
 import time
 import urllib.request
 from pathlib import Path
+
 import functools
 import inspect
 import json
 import pickle
 
-DATA_DOWNLOADS_DIR = "~/optimal-testing/covid19/epidemics/downloads/"
+#DATA_DOWNLOADS_DIR = "~/optimal-testing/covid19/epidemics/downloads/"
+
+DATA_DOWNLOADS_DIR = pathlib.Path(__file__).parent.absolute() / "downloads"
+
 DAY = datetime.timedelta(days=1)
 
 def download(url):
@@ -149,7 +153,7 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
     Returns a dictionary of lists {canton abbreviation: number of cases per day}.
     """
     url = 'https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv'
-    path = DATA_DOWNLOADS_DIR + 'covid19_cases_switzerland_openzh.csv'
+    path = DATA_DOWNLOADS_DIR / "covid19_cases_switzerland_openzh.csv"
 
     raw = download_and_save(url, path, cache_duration=cache_duration)
     rows = raw.decode('utf8').split()
@@ -164,7 +168,7 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
             data[canton].append(float(cell or 'nan'))
     return data
 
-COMMUTE_ADMIN_CH_CSV = DATA_DOWNLOADS_DIR + 'switzerland_commute_admin_ch.csv'
+COMMUTE_ADMIN_CH_CSV = DATA_DOWNLOADS_DIR / "switzerland_commute_admin_ch.csv"
 
 def get_residence_work_cols12568():
     # (residence canton initial,
@@ -173,7 +177,7 @@ def get_residence_work_cols12568():
     #  work commune number,
     #  number of employed people)
     url = 'https://www.bfs.admin.ch/bfsstatic/dam/assets/8507281/master'
-    path = DATA_DOWNLOADS_DIR + 'bfs_residence_work.xlsx'
+    path = DATA_DOWNLOADS_DIR / "bfs_residence_work.xlsx"
     download_and_save(url, path, load=False)
     print(f"Loading {path}...", flush=True)
     sheet = pd.read_excel(path, sheet_name='Commune of residence perspect.',
@@ -217,12 +221,12 @@ def get_shape_file():
     """
     Downloads and returns path to shape file with cantons.
     """
-    zippath = DATA_DOWNLOADS_DIR + "swissBOUNDARIES3D.zip"
+    zippath = DATA_DOWNLOADS_DIR / "swissBOUNDARIES3D.zip"
     download_and_save("https://shop.swisstopo.admin.ch/shop-server/resources/products/swissBOUNDARIES3D/download", zippath)
 
 
     shapefile = "BOUNDARIES_2020/DATEN/swissBOUNDARIES3D/SHAPEFILE_LV95_LN02/swissBOUNDARIES3D_1_3_TLM_KANTONSGEBIET"
-    DATA_MAP_DIR = DATA_DOWNLOADS_DIR + "map"
+    DATA_MAP_DIR = DATA_DOWNLOADS_DIR / "map"
 
     paths = extract_zip(zippath, shapefile, DATA_MAP_DIR)
     return os.path.splitext(paths[0])[0]

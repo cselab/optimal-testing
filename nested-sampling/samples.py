@@ -176,6 +176,9 @@ if __name__ == '__main__':
       rank_2 = rank %  N
       results  = np.zeros((int(days),samples//N,samples//N,26))
 
+
+      from pathlib import Path
+      Path("case"+str(args.case)).mkdir(parents=True, exist_ok=True)
       if args.case == 1:
          results = Uniform_Samples    (days,args.samples)
       elif args.case == 2:
