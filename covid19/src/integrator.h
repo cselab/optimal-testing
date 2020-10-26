@@ -1,8 +1,5 @@
 #pragma once
 
-#include <utils/signal.h>
-#include <boost/numeric/odeint.hpp>
-
 #include <vector>
 
 namespace epidemics {
@@ -17,4 +14,5 @@ std::vector<State> integrate(
         State y0,
         const std::vector<double> &tEval,
         IntegratorSettings settings);
+
 }  // namespace epidemics

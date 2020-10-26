@@ -3,7 +3,7 @@
 #pragma once
 
 #include "bindings.h"
-#include <integrator.hh>
+#include <integrator.h>
 
 namespace epidemics {
 
