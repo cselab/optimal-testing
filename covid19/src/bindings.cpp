@@ -1,13 +1,35 @@
-#include "bindings.h"
-#include "common.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
-#include "../data.h"
-#include "../model.h"
+#include "utils/signal.h"
+
+#include <boost/array.hpp>
+
+#include "data.h"
+#include "model.h"
 
 namespace py = pybind11;
 using namespace py::literals;
 
 namespace epidemics {
+
+namespace {
+
+class SignalRAII {
+public:
+    SignalRAII() {
+        check_signals_func = []() {
+            // https://stackoverflow.com/questions/14707049/allowing-ctrl-c-to-interrupt-a-python-c-extension
+            if (PyErr_CheckSignals() != 0)
+                throw std::runtime_error("Signal received. Breaking.");
+        };
+    }
+    ~SignalRAII() {
+        check_signals_func = nullptr;
+    }
+};
+
+}  // anonymous namespace
 
 /// Helper function factory for State getters.
 static auto makeValuesGetter(size_t valueIndex) {
@@ -20,7 +42,7 @@ static auto makeValuesGetter(size_t valueIndex) {
     };
 }
 
-IntegratorSettings integratorSettingsFromKwargs(py::kwargs kwargs) {
+static IntegratorSettings integratorSettingsFromKwargs(py::kwargs kwargs) {
     auto pop = kwargs.attr("pop");
     IntegratorSettings out;
     out.dt = pop("dt", out.dt).cast<double>();
@@ -40,8 +62,8 @@ static void exportModelData(py::module &m) {
         .def_readonly("num_regions", &ModelData::numRegions);
 }
 
-static auto exportParameters(py::module &m, const char *name) {
-    auto pyParams = py::class_<Parameters>(m, name)
+static void exportParameters(py::module &m) {
+    auto pyParams = py::class_<Parameters>(m, "Parameters")
         .def(py::init<double, double, double, double, double,
                       double, double, double, double, double,
                       double, double, double, double, double>(),
@@ -98,11 +120,20 @@ static auto exportParameters(py::module &m, const char *name) {
             })
         .def("__len__", [](const Parameters &) { return 15; });
     pyParams.attr("NUM_PARAMETERS") = 15;
-    return pyParams;
 }
 
-static auto exportState(py::module &m, const char *name) {
-    return exportGenericState<State>(m, name)
+static void exportState(py::module &m) {
+    py::class_<State>(m, "State")
+        .def(py::init<State::RawState>())
+        .def("tolist", [](const State &state) {
+            return state.raw();
+        }, "Convert to a Python list of elements.")
+        .def("__call__", [](const State &state, size_t index) {
+            if (index < state.raw().size())
+                return state.raw()[index];
+            throw std::out_of_range(std::to_string(index));
+        }, "Get state variables by index.")
+        .def("__len__", &State::size, "Get the total number of state variables.")
         .def("S", makeValuesGetter(0), "Get a list of S for each canton.")
         .def("E", makeValuesGetter(1), "Get a list of E for each canton.")
         .def("Ir", makeValuesGetter(2), "Get a list of Ir for each canton.")
@@ -115,11 +146,28 @@ static auto exportState(py::module &m, const char *name) {
         .def("N", py::overload_cast<size_t>(&State::N, py::const_), "Get N_i.");
 }
 
-void exportAll(py::module &/* top */, py::module &m) {
-    exportParameters(m, "Parameters");
-    exportState(m, "State");
-    exportSolver<Solver, ModelData, State, Parameters>(m)
+/// Export a model Solver. Returns the Solver class handler.
+static void exportSolver(py::module &m) {
+    using namespace py::literals;
+
+    auto solve = [](
+        const Solver &solver,
+        const Parameters &params,
+        State state,
+        const std::vector<double> &tEval,
+        py::kwargs kwargs)
+    {
+        SignalRAII breakRAII;
+        return solver.solve(params, std::move(state), tEval,
+                            integratorSettingsFromKwargs(kwargs));
+    };
+
+    py::class_<Solver>(m, "Solver")
+        .def(py::init<ModelData>(), "model_data"_a)
+        .def_property_readonly("model_data", &Solver::md)
+        .def("solve", std::move(solve), "params"_a, "y0"_a, "t_eval"_a)
         .def("state_size", &Solver::stateSize, "Return the number of state variables.");
+    // solver.attr("model") = m;
 }
 
 }  // namespace epidemics
@@ -127,15 +175,15 @@ void exportAll(py::module &/* top */, py::module &m) {
 PYBIND11_MODULE(libepidemics, m)
 {
     using namespace epidemics;
-    py::class_<IntegratorSettings>(m, "IntegratorSettings")
-        .def(py::init<double>(), "dt"_a)
-        .def_readwrite("dt", &IntegratorSettings::dt);
 
     auto cantons = m.def_submodule("cantons");
 
     // Export the model.
     auto seiin_interventions = cantons.def_submodule("seiin_interventions");
-    epidemics::exportAll(m, seiin_interventions);
+    exportParameters(seiin_interventions);
+    exportState(seiin_interventions);
+    exportSolver(seiin_interventions);
 
-    epidemics::exportModelData(cantons);
+    // Export model data (design parameters).
+    exportModelData(cantons);
 }

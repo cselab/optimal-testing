@@ -32,7 +32,7 @@ add_library(libepidemics::core ALIAS libepidemics_core)
 
 pybind11_add_module(
     libepidemics
-    ${SRC_DIR}/bindings/bindings.cpp
+    ${SRC_DIR}/bindings.cpp
 )
 target_link_libraries(libepidemics PRIVATE libepidemics::core)
 
