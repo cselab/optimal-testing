@@ -5,8 +5,10 @@ import matplotlib.colors as mcolors
 from matplotlib.dates import DateFormatter
 import matplotlib.dates as mdates
 import datetime
-import os
+import os,sys
 
+sys.path.append('..')
+import swiss_cantons
 plt.rcParams.update({'font.size': 5
     })
 
@@ -297,7 +299,8 @@ class utility:
                     ax2b.text(dates[argmaxTime[sens][idxSort]-1][c],(maxTime_Canton[sens][idxSort][c]-max[sens-1]), CANTON_NAMES[idxSort][c],ha='right', va='center', zorder=10)
 
         ## PLOT DATA ##
-        data = np.load("../canton_daily_cases.npy")
+        #data = np.load("../canton_daily_cases.npy")
+        data = swiss_cantons.PrepareData(days=140,country=False)
         cantons = data.shape[0] 
         days = data.shape[1]
         dates   = np.array([self.base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
@@ -339,8 +342,8 @@ if __name__ == '__main__':
   parser.add_argument('--case',help='integer indicating which case to plot',type=int, required=True)
   args = vars(parser.parse_args())
 
-  os.chdir("./case{}".format(args["case"]))
-  util = utility("result_Ny00800_Nt00800.npy")
+  os.chdir("../case{}".format(args["case"]))
+  util = utility("result_Ny00010_Nt00010.npy")
 
   if args["case"] == 1:
     util.plotUtilities()

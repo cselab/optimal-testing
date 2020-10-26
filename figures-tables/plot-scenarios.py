@@ -12,57 +12,23 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from matplotlib.dates import DateFormatter
 
+sys.path.append('..')
+import swiss_cantons
 
-data      = np.load("canton_daily_cases.npy")
-cantons   = data.shape[0] # = 26
-days_data = data.shape[1]
+cantons   = 26
 name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
         'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
         'TI','UR','VD','VS','ZG','ZH']
-
-def nan_helper(y):
-    return np.isnan(y), lambda z: z.nonzero()[0]
-
-def prepareData(days = -1,country = False):    
-    data = np.load("canton_daily_cases.npy")
-    cantons = data.shape[0] # = 26
-    if days == -1:
-        days = data.shape[1]
-    threshold = 0.0
-    print("DAYS=",days)
-    print("country=",country)
-    y = []
-    if country == True:
-        for d in range(days):
-            tot = 0.0
-            for c in range(cantons):
-                if np.isnan(data[c,d]) == False:
-                    tot += data[c,d]
-            y.append(tot) 
-        return y
-    for c in range(cantons):
-        d_ = np.copy(data[c,:])
-        nans, x= nan_helper(d_)
-        d_[nans]= np.interp(x(nans), x(~nans), d_[~nans])
-        if np.max(d_) < threshold :
-            continue
-        print ("cantons:" , c)
-        d1 = np.copy(data[c,:])
-        for d in range(days):
-            if np.isnan(d1[d]) == False:
-                y.append(c)
-                y.append(d)
-                y.append(d1[d])
-    return y
 
 import matplotlib.colors as mcolors
 COLORS = mcolors.CSS4_COLORS
 
 def plot_scenarios():
-    days       = days_data 
 
     fig, ax = plt.subplots(constrained_layout=True)
-    reference = prepareData(country = True)
+    reference = swiss_cantons.prepareData(country = True)
+
+    days       = len(reference)
     
     prediction = []
     base    = datetime.datetime(2020, 2, 25) #February 25th, 2020
@@ -83,7 +49,8 @@ def plot_scenarios():
 
     ax.axvspan(dates[0 ], dates[21], alpha=0.4, color=COLORS['lightskyblue'])
     ax.axvspan(dates[21], dates[102], alpha=0.4, color=COLORS['lightsalmon'])
-    ax.axvspan(dates[102], dates[-1], alpha=0.4, color=COLORS['lightgreen'])
+    #ax.axvspan(dates[102], dates[-1], alpha=0.4, color=COLORS['lightgreen'])
+    ax.axvspan(dates[102], dates[140], alpha=0.4, color=COLORS['lightgreen'])
 
     ax.bar(dates[:102],reference[:102], width=1,label='Daily reported cases',color=COLORS["dimgrey"],zorder=10)
     ax.set_ylabel("Daily Reported infectious")
