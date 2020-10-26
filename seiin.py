@@ -33,7 +33,7 @@ import numpy as np
 import os,sys
 sys.path.append('../covid19/')
 sys.path.append('../')
-from epidemics.model import get_canton_model_data
+from model import get_canton_model_data
 from common import *
 import libepidemics
 

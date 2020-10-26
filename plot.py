@@ -3,7 +3,6 @@ import numpy as np
 import pickle,os,sys,argparse,datetime,random
 import matplotlib.pyplot as plt
 from dynesty import plotting as dyplot
-from data import *
 from seiin import *
 import matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
@@ -13,6 +12,7 @@ from scipy.stats import nbinom
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
+import swiss_cantons
 
 def resample_equal_with_idx(samples, weights, rstate=None):
   if rstate is None:
@@ -114,7 +114,20 @@ def model(days,p):
 ####################################################################################################
 def confidence_intervals_daily_reported(result,case,m):
 ####################################################################################################
-    data  = np.load("canton_daily_cases.npy")
+    name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
+            'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
+            'TI','UR','VD','VS','ZG','ZH']
+
+    IR = swiss_cantons.fetch_openzh_covid_data()
+    days = len(IR['TI'])
+    cantons = 26
+    data = np.zeros((cantons,days))
+    for c in range(cantons):
+        c_i = name[c]
+        data[c,0] = IR[c_i][0]
+        for d in range(1,days):
+            data[c,d] = IR[c_i][d] - IR[c_i][d-1]
+
     days_data = T_DATA_CASE_2 
     if case == 3:
        days_data = T_DATA_CASE_3

@@ -30,7 +30,6 @@ def Posterior_Samples(days,samples,res):
 
     numbers = random.sample(range(s.shape[0]), samples)
 
-
     P     = np.zeros((ic_cantons,samples))
     j = 0
     for ID in numbers:
@@ -165,30 +164,38 @@ if __name__ == '__main__':
       elif args.case == 4:
          days = 150
 
-
       comm = MPI.COMM_WORLD
       rank = comm.Get_rank()
       size = comm.Get_size()
       size_1 = int ( np.sqrt(size) )
       size_2 = int ( np.sqrt(size) )
+
       N = size_1
       rank_1 = rank // N
       rank_2 = rank %  N
-      results  = np.zeros((int(days),samples//N,samples//N,26))
 
+      test = size / size_1       
+      if test != size_1:
+        print("Please run samples.py with a square number (1,4,9,16,...) of MPI ranks")
+        assert test == size_1 
+      if samples % N != 0:
+        print("Please use a number of samples that is divisible by the square root of the total number of MPI ranks used.")
+        assert(samples % N == 0)
+
+      results  = np.zeros((int(days),samples//N,samples//N,26))
 
       from pathlib import Path
       Path("case"+str(args.case)).mkdir(parents=True, exist_ok=True)
       if args.case == 1:
          results = Uniform_Samples    (days,args.samples)
       elif args.case == 2:
-         res = pickle.load( open("case2/samples_2.pickle", "rb" ) )
+         res = pickle.load( open("samples_2.pickle", "rb" ) )
          results = Posterior_Samples(days,args.samples,res)
       elif args.case == 3:
-         res = pickle.load( open("case3/samples_3.pickle", "rb" ) )
+         res = pickle.load( open("samples_3.pickle", "rb" ) )
          results =  Posterior_Samples(days,args.samples,res)
       elif args.case == 4:
-         res = pickle.load( open("case4/samples_4.pickle", "rb" ) )
+         res = pickle.load( open("samples_4.pickle", "rb" ) )
          results =  Posterior_Samples(days,args.samples,res)
 
       comm = MPI.COMM_WORLD

@@ -8,15 +8,14 @@ import os
 import sys
 import urllib.request
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'build'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../covid19/', 'build'))
 
 try:
     import libepidemics
 except ModuleNotFoundError:
     sys.exit("libepidemics not found. Did you forget to compile the C++ code?")
 
-import epidemics.swiss_cantons as swiss_cantons
+import swiss_cantons
 
 def flatten(matrix):
     """
