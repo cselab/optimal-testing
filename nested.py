@@ -9,7 +9,7 @@ from multiprocessing import Pool
 from scipy.special import loggamma
 from seiin import *
 
-sys.path.append('../covid19/')
+sys.path.append('./covid19/')
 import swiss_cantons
 
 ic_cantons = 12
@@ -171,7 +171,9 @@ if __name__=='__main__':
            ndim = 12 + ic_cantons + 1 + 1
     
         t = -time.time()
-        fname = 'samples_' + str(args.case) + '.pickle'
+        from pathlib import Path
+        Path("case"+str(args.case)).mkdir(parents=True, exist_ok=True)
+        fname = 'case'+str(args.case)+'/samples_' + str(args.case) + '.pickle'
         pool = MyPool(args.cores)
         sampler = NestedSampler(model,model_transformation,ndim,nlive=args.nlive, bound='multi', pool=pool)
         sampler.run_nested(maxiter=1e8, dlogz=args.dlogz, add_live=True)

@@ -61,11 +61,4 @@ if rank == size-1:
   utility = e["Solver"]["Utility"]
   utility = np.array(utility)
   utility = utility.reshape((args['nSensors'],CANTONS,days))
-  if case == 1:   
-     np.save("result_Ny{:05d}_Nt{:05d}_1.npy".format(osp.Ny,osp.Ntheta),utility)
-  if case == 2:   
-     np.save("result_Ny{:05d}_Nt{:05d}_2.npy".format(osp.Ny,osp.Ntheta),utility)
-  if case == 3:   
-     np.save("result_Ny{:05d}_Nt{:05d}_3.npy".format(osp.Ny,osp.Ntheta),utility)
-  if case == 4:   
-     np.save("result_Ny{:05d}_Nt{:05d}_4.npy".format(osp.Ny,osp.Ntheta),utility)
+  np.save("case"+str(case)+"/result_Ny{:05d}_Nt{:05d}_".format(osp.Ny,osp.Ntheta)+str(case)+".npy",utility)

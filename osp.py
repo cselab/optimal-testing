@@ -25,7 +25,7 @@ class OSP:
     #self.sigma_mean1 = np.zeros((self.days,26))
     #self.population =  np.load("population.npy").astype(float)
     for i in range(self.days):
-      temp = np.load(path+"/tensor_Ntheta={:05d}.npy".format(i))
+      temp = np.load(path+"/day={:05d}.npy".format(i))
       self.sigma_mean[i] = np.mean(temp.flatten())
       #for c in range(26):
       #    self.sigma_mean1[i,c] = np.mean(temp[:,:,c].flatten())
@@ -77,7 +77,7 @@ class OSP:
     Ny       = self.Ny
     F_tensor = np.zeros( (Ntheta, Ntheta, n ))
     for s in range(n):
-        temp = np.load(self.path+"/tensor_Ntheta={:05d}.npy".format(time[s]))
+        temp = np.load(self.path+"/day={:05d}.npy".format(time[s]))
         F_tensor[:,:,s] = temp[:,:,space[s]] 
 
     #Estimate covariance matrix as a function of the sensor locations (time and space)

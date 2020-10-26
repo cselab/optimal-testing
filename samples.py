@@ -10,7 +10,7 @@ def getPosteriorFromResult(result):
     samples = dyfunc.resample_equal(result.samples, weights) #Compute 10%-90% quantiles.
     return samples
 
-def Posterior_Samples(days,samples,res):
+def Posterior_Samples(days,samples,res,case):
     np.random.seed(1234567)
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -84,8 +84,8 @@ def Posterior_Samples(days,samples,res):
     print ("Rank",rank,"completed evaluations",flush=True)
     comm.Barrier()
 
-    np.save("runs.npy",All_results)
-    np.save("dispersion.npy",dispersion)
+    np.save("case"+str(case)+"/runs.npy",All_results)
+    np.save("case"+str(case)+"/dispersion.npy",dispersion)
 
     return All_results
 
@@ -188,15 +188,9 @@ if __name__ == '__main__':
       Path("case"+str(args.case)).mkdir(parents=True, exist_ok=True)
       if args.case == 1:
          results = Uniform_Samples    (days,args.samples)
-      elif args.case == 2:
-         res = pickle.load( open("samples_2.pickle", "rb" ) )
-         results = Posterior_Samples(days,args.samples,res)
-      elif args.case == 3:
-         res = pickle.load( open("samples_3.pickle", "rb" ) )
-         results =  Posterior_Samples(days,args.samples,res)
-      elif args.case == 4:
-         res = pickle.load( open("samples_4.pickle", "rb" ) )
-         results =  Posterior_Samples(days,args.samples,res)
+      else:
+         res = pickle.load( open("case"+str(args.case)+"/samples_"+str(args.case)+".pickle", "rb" ) )
+         results = Posterior_Samples(days,args.samples,res,args.case)
 
       comm = MPI.COMM_WORLD
       rank = comm.Get_rank()
@@ -212,7 +206,7 @@ if __name__ == '__main__':
                 data[rank_1*samples//N:(rank_1+1)*samples//N,
                      rank_2*samples//N:(rank_2+1)*samples//N,:] = comm.recv(source=r, tag=r)
               s = "{:05d}".format(d)
-              name = "tensor_Ntheta=" + s
+              name = "day=" + s
               print("Saving day",d,"...",end='')
               np.save("case"+str(args.case)+"/" + name + ".npy",data)
               print("completed.")

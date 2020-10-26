@@ -93,17 +93,7 @@ def posterior_plots(result,case):
           ax_loc.xaxis.set_major_locator(plt.MaxNLocator(3))
           ax_loc.yaxis.set_major_locator(plt.MaxNLocator(3))
        i += 1
-    #fig.tight_layout()
-    '''
-    if case == 2:
-      fig.set_size_inches(20.0, 25.0)
-    elif case == 3:
-      fig.set_size_inches(25.0, 25.0)
-    elif case == 4:
-      fig.set_size_inches(30.0, 25.0)
-    '''
-
-    fig.savefig("posterior"+str(case)+".pdf",dpi=1000,bbox_inches = 'tight',pad_inches = 0.2)
+    fig.savefig("case"+str(case)+"/posterior"+str(case)+".pdf",dpi=1000,bbox_inches = 'tight',pad_inches = 0.2)
 
 
 def model(days,p):
@@ -234,7 +224,7 @@ def confidence_intervals_daily_reported(result,case,m):
     #fig.legend(handles, labels, loc='lower center',ncol=1,bbox_to_anchor=(0.6, 0.1),fontsize='xx-large')
     fig.set_size_inches(20.0, 20.0)
     plt.tight_layout()
-    fig.savefig("cantons.pdf",dpi=1000 ,format="pdf")
+    fig.savefig("case"+str(case)+"/cantons.pdf",dpi=1000 ,format="pdf")
     print("Done plotting predictions.")
 
 
