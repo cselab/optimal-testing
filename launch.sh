@@ -8,4 +8,5 @@ NY=10
 
 python3 nested.py --nlive $NLIVE --case $CASE --dlogz $DLOGZ --cores $CORES
 mpirun -n $CORES ./samples.py --case $CASE --samples $SAMPLES
-mpirun -n $CORES ./run-sequential.py --nSensors $SENSORS --path "case$CASE" --Ny $NY --Ntheta $SAMPLES --case $CASE
+mpirun -n $CORES ./run-sequential.py --nSurveys $SENSORS --path "case$CASE" --Ny $NY --Ntheta $SAMPLES --case $CASE
+
