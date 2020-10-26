@@ -8,8 +8,8 @@
 .npy
 __pycache__
 _korali_result/
-canton_daily_cases.npy
-nested-sampling/*.pickle
-nested-sampling/._*
-nested-sampling/__*
 samples.npy
+case1
+case2
+case3
+case4
