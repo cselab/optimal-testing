@@ -66,9 +66,9 @@ Third, install the dynesty library by using pip3:
 
 ## Plot the results (part 2/2, test allocation)
 1. Go to the figures directory
-3. To plot the illustration of the different cases, run `python3 plot-scenarios.py`. The resulting figure can be found in caseY/.
+3. To plot the illustration of the different cases, run `python3 plot-scenarios.py`.
 2. Run the plotting script `python3 plot-ots.py --case Y` where Y=1,2,3. This will create the plots for the different cases as shown in the publication. The figures are saved in figures/caseY.
-3. To create the tables from the Supplementary Information, run `python3 print-tables.py --case Y` for Y=1,2,3. The generated screen output can be copy pasted to gernerate the tables in latex.
+3. To create the tables from the Supplementary Information, run `python3 print-tables.py --case Y` for Y=1,2,3. The generated screen output can be copy pasted to generate the tables in latex.
 4. The comparison of the effectiveness of the different strategies can be done `python3 plot-effectiveness.py`. The figures are saved in figures/effectiveness.
 
 
