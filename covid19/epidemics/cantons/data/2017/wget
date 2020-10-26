@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -eu
+
+e () {
+  echo "$@" 2>&1
+  eval "$@"
+}
+
+need () {
+  out=$1
+  if [ -f "$out" ] ; then
+    echo "skip existing '$out'" 2>&1
+    return 1
+  else
+    return 0
+  fi
+}
+
+out=public_transport.mtx
+if need "$out" ; then
+  zip=$out.zip
+  e wget -nv -c "https://zenodo.org/record/3716134/files/DWV_2017_OeV_Wegematrizen_bin%C3%A4r.zip" -O "$zip"
+  tmp=$$.tmp
+  e unzip -p "$zip" "*_CH_*" \> "$tmp"
+  mv -v "$tmp" "$out"
+fi
+
+out=zones.gpkg
+if need "$out" ; then
+  zip=$out.zip
+  e wget -nv -c "https://zenodo.org/record/3716134/files/Verkehrszonen_Schweiz_NPVM_2017.zip" -O "$zip"
+  tmp=$$.zip
+  e unzip -p "$zip" "Verkehrszonen_Schweiz_NPVM_2017_gpkg.zip" \> "$tmp"
+  e unzip -p "$tmp" "Verkehrszonen_Schweiz_NPVM_2017.gpkg" \> "$out"
+  rm "$tmp"
+fi

@@ -1,6 +1,5 @@
 .npy
 __pycache__
-covid19/
 _korali_result/
 canton_daily_cases.npy
 samples.npy

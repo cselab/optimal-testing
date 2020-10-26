@@ -10,8 +10,10 @@ from pandas.plotting import register_matplotlib_converters
 from matplotlib.dates import DateFormatter
 import matplotlib
 from datetime import timedelta
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../covid19/epidemics/cantons/py'))
-from run_osp_cases import *
+#sys.path.append(os.path.join(os.path.dirname(__file__), '../covid19/epidemics/cantons/py'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../nested-sampling/'))
+#from run_osp_cases import *
+from seiin import *
 from nested_plot import *
 
 

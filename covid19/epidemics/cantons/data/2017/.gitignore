@@ -1,0 +1,4 @@
+*.mtx
+*.gpkg
+*.zip
+*.cache

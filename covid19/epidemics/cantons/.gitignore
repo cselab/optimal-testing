@@ -1,0 +1,8 @@
+*.mp4
+*.pdf
+*.png
+*.npy
+/build
+_korali_result
+!data
+._*

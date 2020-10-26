@@ -31,7 +31,7 @@ b_3     : after loosening of measures, the transmission rate is given by min(b_0
 '''
 import numpy as np
 import os,sys
-sys.path.append('../../covid19/')
+sys.path.append('../covid19/')
 sys.path.append('../')
 from epidemics.cantons.py.model import get_canton_model_data
 from common import *

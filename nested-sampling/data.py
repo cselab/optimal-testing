@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import numpy as np
 import os,sys
-sys.path.append('../../covid19/')
+sys.path.append('../covid19/')
 import epidemics.data.swiss_cantons as swiss_cantons
-#import epidemics.data.cases as cases
 
 def get_canton_reference_data():
     cases_per_country = swiss_cantons.fetch_openzh_covid_data()

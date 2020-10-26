@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import os,sys
-sys.path.append('../../covid19/')
+sys.path.append('../covid19/')
 import epidemics.data.swiss_cantons as swiss_cantons
 
 def get_canton_reference_data():
