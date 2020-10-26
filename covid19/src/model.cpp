@@ -10,7 +10,6 @@ void Solver::_rhs(double t,
 {
     int day = static_cast<int>(t);
     for (size_t i = 0; i < md_.numRegions; ++i) {
-        double extComIu = md_.getExternalCommutersIu(day, i);
 
         // Interventions: beta is modelled as a function of time.
         double BETA;
@@ -31,7 +30,7 @@ void Solver::_rhs(double t,
            THETA = p.theta3;
         }
 
-        double A = BETA * x.S(i) / x.N(i) * (x.Ir(i) + extComIu);
+        double A = BETA * x.S(i) / x.N(i) * x.Ir(i);
         double B = BETA * x.S(i) / x.N(i) * p.mu * x.Iu(i);
         double E_Z = x.E(i) / p.Z;
 

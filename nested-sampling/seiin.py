@@ -37,7 +37,7 @@ from epidemics.model import get_canton_model_data
 from common import *
 import libepidemics
 
-data = get_canton_model_data(include_foreign=False)
+data = get_canton_model_data()
 
 def example_run_seiin(num_days, inputs, int_day=T_S_CASE_2):
     num_days = int(num_days)

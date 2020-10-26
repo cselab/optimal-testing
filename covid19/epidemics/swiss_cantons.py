@@ -26,7 +26,6 @@ import pickle
 DAY = datetime.timedelta(days=1)
 
 
-
 def download(url):
     """Download and return the content of a URL."""
     print(f"[Epidemics] Downloading {url}... ", end="", flush=True)
@@ -34,31 +33,6 @@ def download(url):
     data = req.read()
     print("Done.", flush=True)
     return data
-
-def cache(func):
-    """Caches the result of a given function, depending on the function arguments.
-
-    A decorated function accepts only hashable types, e.g. tuples and not lists.
-
-    Example:
-        @cache
-        def func(x):
-            print(x)
-            return x * x
-
-        a = func(10)    # Prints 10.
-        b = func(20)    # Prints 20.
-        c = func(20)    # Prints nothing (value is cached).
-        print(a, b, c)  # 100, 400, 400
-    """
-    _cache = {}
-    def inner(*args, **kwargs):
-        key = (args, frozenset(kwargs.items()))
-        if key in _cache:
-            return _cache[key]
-        _cache[key] = out = func(*args, **kwargs)
-        return out
-    return functools.wraps(func)(inner)
 
 
 def cache_to_file(target, dependencies=[]):
@@ -182,7 +156,6 @@ def extract_zip(zippath, member_pattern, save_dir, overwrite=False):
     return paths
 
 
-@cache
 def bfs_residence_work_xls(header=(3, 4), usecols=None):
     """Return the residence-workplace commute Excel file as a pandas.DataFrame."""
     url = 'https://www.bfs.admin.ch/bfsstatic/dam/assets/8507281/master'
@@ -193,7 +166,7 @@ def bfs_residence_work_xls(header=(3, 4), usecols=None):
                           header=header, skipfooter=4, usecols=usecols)
     return sheet
 
-@cache
+
 @cache_to_file(DATA_CACHE_DIR / 'bfs_residence_work_cols12568.df.csv')
 def get_residence_work_cols12568():
     # (residence canton initial,
@@ -297,7 +270,7 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
 
 COMMUTE_ADMIN_CH_CSV = DATA_FILES_DIR / 'switzerland_commute_admin_ch.csv'
 
-@cache
+#@cache
 @cache_to_file(DATA_CACHE_DIR / 'home_work_people.json',
                dependencies=[COMMUTE_ADMIN_CH_CSV])
 def get_Cij_home_work_bfs():
