@@ -5,7 +5,7 @@ This file provides access to all relevant data aobut Swiss cantons and COVID-19:
     - number of cases per day, for each canton
 """
 
-from epidemics import DATA_CACHE_DIR, DATA_DOWNLOADS_DIR, DATA_FILES_DIR
+from epidemics import DATA_CACHE_DIR, DATA_DOWNLOADS_DIR
 import numpy as np
 import datetime
 import os
@@ -231,7 +231,7 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
             data[canton].append(float(cell or 'nan'))
     return data
 
-COMMUTE_ADMIN_CH_CSV = DATA_FILES_DIR / 'switzerland_commute_admin_ch.csv'
+COMMUTE_ADMIN_CH_CSV = DATA_DOWNLOADS_DIR / 'switzerland_commute_admin_ch.csv'
 
 @cache_to_file(DATA_CACHE_DIR / 'bfs_residence_work_cols12568.df.csv')
 def get_residence_work_cols12568():
