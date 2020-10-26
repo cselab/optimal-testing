@@ -17,9 +17,20 @@ try:
 except ModuleNotFoundError:
     sys.exit("libepidemics not found. Did you forget to compile the C++ code?")
 
-from epidemics.data import DATA_CACHE_DIR
-from epidemics.tools.tools import flatten
-import epidemics.data.swiss_cantons as swiss_cantons
+from epidemics import DATA_CACHE_DIR
+import epidemics.swiss_cantons as swiss_cantons
+
+def flatten(matrix):
+    """
+    >>> flatten([[10, 20, 30], [40, 50]])
+    [10, 20, 30, 40, 50]
+    """
+    return [
+        value
+        for row in matrix
+        for value in row
+    ]
+
 
 
 class ModelData:
@@ -156,34 +167,6 @@ def get_canton_reference_data():
     return ReferenceData(keys, cases_per_country)
 
 
-def get_municipality_model_data():
-    namepop = swiss_municipalities.get_name_and_population()
-    commute = swiss_municipalities.get_commute()
-
-    # TODO: Comparison with reference data requires aggregation wrt cantons,
-    # since that's the only reference data we have.
-    # cantons = swiss_municipalities.get_municipality_commute()
-
-    key_to_index = {key: k for k, key in enumerate(namepop['key'])}
-    N = len(key_to_index)
-    Cij = np.zeros((N, N))
-    for key_home, key_work, num_people in zip(
-            commute['key_home'],
-            commute['key_work'],
-            commute['num_people']):
-        home = key_to_index.get(key_home)
-        work = key_to_index.get(key_work)
-        if home is None or work is None:
-            continue
-        Cij[work, home] += num_people
-
-    # NOTE: This Mij is wrong.
-    Mij = Cij + Cij.transpose()
-
-    return ModelData(namepop['key'], namepop['population'], Mij, Cij)
-
-
 if __name__ == '__main__':
     get_canton_model_data().save_cpp_dat()
     get_canton_reference_data().save_cpp_dat()
-    # get_municipality_model_data().save_cpp_dat()

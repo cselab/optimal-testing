@@ -5,16 +5,182 @@ This file provides access to all relevant data aobut Swiss cantons and COVID-19:
     - number of cases per day, for each canton
 """
 
-from epidemics.data import DATA_CACHE_DIR, DATA_DOWNLOADS_DIR, DATA_FILES_DIR
-from epidemics.tools.cache import cache, cache_to_file
-from epidemics.tools.io import download_and_save, extract_zip
+from epidemics import DATA_CACHE_DIR, DATA_DOWNLOADS_DIR, DATA_FILES_DIR
 import numpy as np
 
 import datetime
 import os
 import pandas as pd
 
+import pathlib
+import time
+import urllib.request
+
+from pathlib import Path
+import functools
+import inspect
+import json
+import pickle
+
+
 DAY = datetime.timedelta(days=1)
+
+
+
+def download(url):
+    """Download and return the content of a URL."""
+    print(f"[Epidemics] Downloading {url}... ", end="", flush=True)
+    req = urllib.request.urlopen(url)
+    data = req.read()
+    print("Done.", flush=True)
+    return data
+
+def cache(func):
+    """Caches the result of a given function, depending on the function arguments.
+
+    A decorated function accepts only hashable types, e.g. tuples and not lists.
+
+    Example:
+        @cache
+        def func(x):
+            print(x)
+            return x * x
+
+        a = func(10)    # Prints 10.
+        b = func(20)    # Prints 20.
+        c = func(20)    # Prints nothing (value is cached).
+        print(a, b, c)  # 100, 400, 400
+    """
+    _cache = {}
+    def inner(*args, **kwargs):
+        key = (args, frozenset(kwargs.items()))
+        if key in _cache:
+            return _cache[key]
+        _cache[key] = out = func(*args, **kwargs)
+        return out
+    return functools.wraps(func)(inner)
+
+
+def cache_to_file(target, dependencies=[]):
+    """Factory for a decorator that caches the result of a no-argument function and stores it to a target file.
+
+    Handles JSON, pickle and pandas.DataFrame CSV files.
+
+    Arguments:
+        target: The target cache filename.
+        dependencies: The list of files that the result depends on.
+
+    If the target file exists but is older than any of the dependencies, it will be recomputed.
+    """
+    target = Path(target)
+    dependencies = [Path(d) for d in dependencies]
+
+    target_str = str(target)
+
+    if target_str.endswith('.json'):
+        def load(path):
+            with open(path) as f:
+                return json.load(f)
+
+        def save(content, path):
+            with open(path, 'w') as f:
+                json.dump(content, f)
+
+    elif target_str.endswith('.pickle'):
+        def load(path):
+            with open(path, 'rb') as f:
+                return pickle.load(f)
+
+        def save(content, path):
+            with open(path, 'wb') as f:
+                pickle.dump(content, f)
+
+    elif target_str.endswith('.df.csv'):
+        load = pd.read_csv
+
+        def save(content, path):
+            with open(path, 'w') as f:
+                f.write(content.to_csv(index=False))
+
+    else:
+        raise ValueError(f"Unrecognized extension '{target.suffix}'. "
+                         f"Only .json and .pickle supported.")
+
+    def decorator(func):
+        all_dependencies = dependencies + [Path(inspect.getfile(func))]
+
+        def inner():
+            try:
+                modified_time = target.stat().st_mtime
+            except FileNotFoundError:
+                pass
+            else:
+                if all(modified_time > d.stat().st_mtime
+                       for d in all_dependencies):
+                    print(f"Loading the result of `{func.__name__}` from the cache file `{target}`.")
+                    return load(target)
+
+            result = func()
+            target.parent.mkdir(parents=True, exist_ok=True)
+            save(result, target)
+            return result
+        return functools.wraps(func)(inner)
+    return decorator
+
+
+
+
+
+
+def download_and_save(url, path, cache_duration=1000000000, load=True):
+    """Download the URL, store to a file, and return its content.
+
+    Arguments:
+        url: URL to download.
+        path: Target file path.
+        cache_duration: (optional) Reload if the file on disk is older than the given duration in seconds.
+        load: Should the file be loaded in memory? If not, `None` is returned.
+    """
+    path = pathlib.Path(path)
+    try:
+        if time.time() - path.lstat().st_mtime <= cache_duration:
+            if load:
+                with open(path, 'rb') as f:
+                    return f.read()
+            elif os.path.exists(path):
+                return None
+    except FileNotFoundError:
+        pass
+
+    data = download(url)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'wb') as f:
+        f.write(data)
+    if load:
+        return data
+    else:
+        return None
+
+def extract_zip(zippath, member_pattern, save_dir, overwrite=False):
+    """
+    Extracts files from zip archive which name contains `member_pattern`,
+    saves them to `save_dir`, and returns paths to saved files.
+    """
+    from zipfile import ZipFile
+    from pathlib import Path
+    os.makedirs(save_dir, exist_ok=True)
+    paths = []
+    with ZipFile(zippath, 'r') as zipobj:
+        for member in zipobj.namelist():
+            if member_pattern in member:
+                path = Path(save_dir) / os.path.basename(member)
+                if overwrite or not os.path.isfile(path):
+                    print("extracting '{:}'".format(member))
+                    with open(path, 'wb') as f:
+                        f.write(zipobj.read(member))
+                paths.append(path)
+    return paths
+
 
 @cache
 def bfs_residence_work_xls(header=(3, 4), usecols=None):
