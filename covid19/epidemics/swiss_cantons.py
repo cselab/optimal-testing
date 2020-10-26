@@ -17,7 +17,7 @@ import inspect
 import json
 import pickle
 
-DATA_DOWNLOADS_DIR = "./downloads"
+DATA_DOWNLOADS_DIR = "~/optimal-testing/covid19/epidemics/downloads/"
 DAY = datetime.timedelta(days=1)
 
 def download(url):
