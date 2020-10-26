@@ -34,8 +34,8 @@ void exportSolverCommon(
 /// Export a model Solver. Returns the Solver class handler.
 template <typename Solver,
           typename ModelData,
-          template <typename> class State,
-          template <typename> class Parameters>
+          typename State,
+          typename Parameters>
 auto exportSolver(py::module &m) {
     using namespace py::literals;
 
@@ -45,7 +45,7 @@ auto exportSolver(py::module &m) {
         .def("solve_ad", [](const Solver &, py::args, py::kwargs) {
             throw std::runtime_error("'solve_ad' has been renamed to 'solve_params_ad'");
         });
-    exportSolverCommon<Solver, State<double>, Parameters<double>>(m, solver, "solve");
+    exportSolverCommon<Solver, State, Parameters>(m, solver, "solve");
     return solver;
 }
 

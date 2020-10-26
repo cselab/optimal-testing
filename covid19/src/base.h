@@ -13,9 +13,9 @@ namespace cantons {
  * single std::vector<> to store the whole state of the simulation, and the
  * wrapper below to access the data in a human-friendly way.
  */
-template <typename T, size_t VarsPerRegion>
+template <size_t VarsPerRegion>
 struct StateBase {
-    using RawState = std::vector<T>;
+    using RawState = std::vector<double>;
     static constexpr size_t kVarsPerRegion = VarsPerRegion;
 
     /// Create a state with all values set to 0.
@@ -50,9 +50,7 @@ protected:
  * Solvers have to only define a `rhs` function, the integrator is handled by
  * the base class in `base.hh`.
  */
-template <typename Derived,
-          template <typename> class State,
-          template <typename> class Parameters>
+template <typename Derived, typename State, typename Parameters>
 class SolverBase {
 public:
     SolverBase(ModelData md) :
@@ -62,7 +60,7 @@ public:
     const ModelData &md() const noexcept { return md_; }
 
     size_t stateSize() const noexcept {
-        return State<double>::kVarsPerRegion * md_.numRegions;
+        return State::kVarsPerRegion * md_.numRegions;
     }
 
     double M(int from, int to) const {
@@ -78,20 +76,19 @@ public:
         return md_.C_plus_Ct[from * md_.numRegions + to];
     }
 
-    template <typename T>
-    std::vector<State<T>> solve(
-            const Parameters<T> &parameters,
-            State<T> y0,
+    std::vector<State> solve(
+            const Parameters &parameters,
+            State y0,
             const std::vector<double> &tEval,
             IntegratorSettings settings) const
     {
-        if (y0.raw().size() != md_.numRegions * State<T>::kVarsPerRegion)
+        if (y0.raw().size() != md_.numRegions * State::kVarsPerRegion)
             throw std::invalid_argument("Invalid state vector length.");
 
         return integrate(
-                [this, parameters](double t, const State<T> &x, State<T> &dxdt) {
+                [this, parameters](double t, const State &x, State &dxdt) {
                     assert(x.raw().size() == dxdt.raw().size());
-                    assert(x.raw().size() == md_.numRegions * State<T>::kVarsPerRegion);
+                    assert(x.raw().size() == md_.numRegions * State::kVarsPerRegion);
                     return derived()->rhs(t, parameters, x, dxdt);
                 },
                 std::move(y0), tEval, std::move(settings));
