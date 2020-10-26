@@ -37,7 +37,7 @@ class ModelData:
     """Model data such as region population and Mij matrix.
 
     For conveniece, we store parameters beta, mu, alpha and other scalars
-    separately (as libepidemics.cantons.<model>.Parameters).
+    separately (as libepidemics.Parameters).
 
     Arguments:
         region_keys: List of region names.
@@ -72,7 +72,7 @@ class ModelData:
         """Return the libepidemics.ModelData instance.
 
         Needed when running the model from Python using the C++ implementation."""
-        return libepidemics.cantons.ModelData(
+        return libepidemics.ModelData(
                 self.region_keys, self.region_population,
                 flatten(self.Mij), flatten(self.Cij),
                 flatten(self.ext_com_Iu), self.Ui)

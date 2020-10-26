@@ -1,4 +1,4 @@
-import libepidemics.cantons.seiin_interventions as model
+import libepidemics
 
 from scipy.integrate import solve_ivp
 import numpy as np
@@ -87,12 +87,12 @@ class TestCantonsSEIINInterventions(TestCaseEx):
         """Test the C++ implementation of the SEIIN model."""
         K = 3  # Number of cantons.
         md = get_canton_model_data(K=K, days=0)
-        solver = model.Solver(md)
+        solver = libepidemics.Solver(md)
 
         # NOTE: The C++ and Python implementation do not produce exactly the
         # same results when interventions are used because the RHS is not
         # continuous. Lowering dt does not help much.
-        params = model.Parameters(beta=0.3, mu=0.7, alpha=0.03, Z=4.0, D=5.0, theta=0.789,
+        params = libepidemics.Parameters(beta=0.3, mu=0.7, alpha=0.03, Z=4.0, D=5.0, theta=0.789,
                                   # b1=0.25, b2=0.21, b3=0.15,
                                   # d1=10, d2=18, d3=23,
                                   # theta1=0.5, theta2=0.3, theta3=0.2
@@ -104,7 +104,7 @@ class TestCantonsSEIINInterventions(TestCaseEx):
         y0 = (1.0e5, 0.9e5, 0.8e5, 1, 2, 3, 5, 6, 7, 0, 1, 2, 300000, 200000, 100000)
         t_eval = list(range(30))
         py_result = py_solve(params, y0=y0, t_eval=t_eval, md=md)
-        y0 = model.State(y0)
+        y0 = libepidemics.State(y0)
         cpp_result = solver.solve(params, y0, t_eval=t_eval, dt=0.1)
 
         # Skip t=0 because relative error is undefined. Removing t=0 from t_eval does not work.

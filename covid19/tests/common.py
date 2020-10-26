@@ -24,7 +24,7 @@ def get_canton_model_data(K, days):
     for i in range(K):
         Cij[i, i] = 0.0;
 
-    return libepidemics.cantons.ModelData(
+    return libepidemics.ModelData(
             region_keys=["C" + str(k) for k in range(K)],
             Ni=(1e6 + 1e6 * np.random.rand(K)).tolist(),
             Mij=flatten(Mij),
