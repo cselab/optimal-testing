@@ -2,7 +2,6 @@
 #include <utils/assert.h>
 
 namespace epidemics {
-namespace cantons {
 
 std::vector<double> ReferenceData::getReferenceData() const {
     size_t N = cases.size();
@@ -136,5 +135,4 @@ ReferenceData readReferenceData(const char *filename) {
     return out;
 }
 
-}  // namespace cantons
 }  // namespace epidemics

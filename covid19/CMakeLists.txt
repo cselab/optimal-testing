@@ -18,6 +18,7 @@ add_library(
     # For now, bindings are responsible for instantiating template
     # functions `Solver::solve`, so there's not that many files here.
     ${SRC_DIR}/data.cpp
+    ${SRC_DIR}/model.cpp
     ${SRC_DIR}/utils/assert.cpp
     ${SRC_DIR}/utils/signal.cpp
 )
@@ -32,7 +33,6 @@ add_library(libepidemics::core ALIAS libepidemics_core)
 pybind11_add_module(
     libepidemics
     ${SRC_DIR}/bindings/bindings.cpp
-    ${SRC_DIR}/bindings/cantons.seiin_interventions.cpp
 )
 target_link_libraries(libepidemics PRIVATE libepidemics::core)
 
