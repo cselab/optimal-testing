@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import numpy as np
-
 from datetime import datetime
 import json
 import math
@@ -31,13 +30,8 @@ def flatten(matrix):
         for value in row
     ]
 
-
-
 class ModelData:
     """Model data such as region population and Mij matrix.
-
-    For conveniece, we store parameters beta, mu, alpha and other scalars
-    separately (as libepidemics.Parameters).
 
     Arguments:
         region_keys: List of region names.
@@ -56,7 +50,6 @@ class ModelData:
 
     def to_cpp(self):
         """Return the libepidemics.ModelData instance.
-
         Needed when running the model from Python using the C++ implementation."""
         return libepidemics.ModelData(
                 self.region_keys, self.region_population,flatten(self.Mij))
@@ -89,7 +82,6 @@ class ModelData:
                 f.write(' '.join(str(x) for x in row) + '\n')
             f.write('\n')
         print(f"Stored model data to {path}.")
-
 
 
 def get_canton_model_data():

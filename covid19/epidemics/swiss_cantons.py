@@ -7,24 +7,19 @@ This file provides access to all relevant data aobut Swiss cantons and COVID-19:
 
 from epidemics import DATA_CACHE_DIR, DATA_DOWNLOADS_DIR, DATA_FILES_DIR
 import numpy as np
-
 import datetime
 import os
 import pandas as pd
-
 import pathlib
 import time
 import urllib.request
-
 from pathlib import Path
 import functools
 import inspect
 import json
 import pickle
 
-
 DAY = datetime.timedelta(days=1)
-
 
 def download(url):
     """Download and return the content of a URL."""
@@ -33,7 +28,6 @@ def download(url):
     data = req.read()
     print("Done.", flush=True)
     return data
-
 
 def cache_to_file(target, dependencies=[]):
     """Factory for a decorator that caches the result of a no-argument function and stores it to a target file.
@@ -101,11 +95,6 @@ def cache_to_file(target, dependencies=[]):
         return functools.wraps(func)(inner)
     return decorator
 
-
-
-
-
-
 def download_and_save(url, path, cache_duration=1000000000, load=True):
     """Download the URL, store to a file, and return its content.
 
@@ -154,30 +143,6 @@ def extract_zip(zippath, member_pattern, save_dir, overwrite=False):
                         f.write(zipobj.read(member))
                 paths.append(path)
     return paths
-
-
-def bfs_residence_work_xls(header=(3, 4), usecols=None):
-    """Return the residence-workplace commute Excel file as a pandas.DataFrame."""
-    url = 'https://www.bfs.admin.ch/bfsstatic/dam/assets/8507281/master'
-    path = DATA_DOWNLOADS_DIR / 'bfs_residence_work.xlsx'
-    download_and_save(url, path, load=False)
-    print(f"Loading {path}...", flush=True)
-    sheet = pd.read_excel(path, sheet_name='Commune of residence perspect.',
-                          header=header, skipfooter=4, usecols=usecols)
-    return sheet
-
-
-@cache_to_file(DATA_CACHE_DIR / 'bfs_residence_work_cols12568.df.csv')
-def get_residence_work_cols12568():
-    # (residence canton initial,
-    #  residence commune number,
-    #  work canton initial,
-    #  work commune number,
-    #  number of employed people)
-    df = bfs_residence_work_xls(header=4, usecols=(1, 2, 5, 6, 8))
-    df.columns = ('canton_home', 'number_home', 'canton_work', 'number_work', 'num_people')
-    return df
-
 
 # https://en.wikipedia.org/wiki/Cantons_of_Switzerland
 CANTON_POPULATION = dict(zip(
@@ -266,21 +231,31 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
             data[canton].append(float(cell or 'nan'))
     return data
 
-
-
 COMMUTE_ADMIN_CH_CSV = DATA_FILES_DIR / 'switzerland_commute_admin_ch.csv'
 
-#@cache
-@cache_to_file(DATA_CACHE_DIR / 'home_work_people.json',
-               dependencies=[COMMUTE_ADMIN_CH_CSV])
+@cache_to_file(DATA_CACHE_DIR / 'bfs_residence_work_cols12568.df.csv')
+def get_residence_work_cols12568():
+    # (residence canton initial,
+    #  residence commune number,
+    #  work canton initial,
+    #  work commune number,
+    #  number of employed people)
+    url = 'https://www.bfs.admin.ch/bfsstatic/dam/assets/8507281/master'
+    path = DATA_DOWNLOADS_DIR / 'bfs_residence_work.xlsx'
+    download_and_save(url, path, load=False)
+    print(f"Loading {path}...", flush=True)
+    sheet = pd.read_excel(path, sheet_name='Commune of residence perspect.',
+                          header=4, skipfooter=4, usecols=(1, 2, 5, 6, 8))
+    sheet.columns = ('canton_home', 'number_home', 'canton_work', 'number_work', 'num_people')
+    return sheet
+
+@cache_to_file(DATA_CACHE_DIR / 'home_work_people.json',dependencies=[COMMUTE_ADMIN_CH_CSV])
 def get_Cij_home_work_bfs():
     """
     Returns a dictionary
     {canton1: {canton2: number of commuters between canton1 and canton2, ...}, ...}.
     """
-    #commute = swiss_mun.get_residence_work_cols12568()
     commute = get_residence_work_cols12568()
-
     Cij = {
         c1: {c2: 0 for c2 in CANTON_KEYS_ALPHABETICAL}
         for c1 in CANTON_KEYS_ALPHABETICAL
@@ -291,36 +266,21 @@ def get_Cij_home_work_bfs():
             commute['num_people']):
         if home != work and work != 'ZZ':
             Cij[work][home] += num_people
-
     return Cij
-
-
-def json_to_numpy_matrix(json, order):
-    """Returns a json {'A': {'A': ..., ...}, ...} matrix as a numpy matrix.
-
-    Arguments:
-        json: A matrix in a JSON dictionary format.
-        order: The desired row and column order in the output matrix.
-    """
-    assert len(order) == len(json), (len(order), len(json))
-    out = np.zeros((len(order), len(order)))
-    for index1, c1 in enumerate(order):
-        for index2, c2 in enumerate(order):
-            out[index1][index2] = json[c1][c2]
-    return out
-
 
 def get_Mij_numpy(canton_order):
     """Return the Mij numpy matrix using the data from bfs.admin.ch."""
     # NOTE: This is not the actual migration matrix!
-    Cij = get_Cij_numpy(canton_order)
+
+    json = get_Cij_home_work_bfs()
+
+    assert len(canton_order) == len(json), (len(canton_order), len(json))
+    Cij = np.zeros((len(canton_order), len(canton_order)))
+    for index1, c1 in enumerate(canton_order):
+        for index2, c2 in enumerate(canton_order):
+            Cij[index1][index2] = json[c1][c2]
+
     return Cij + Cij.transpose()
-
-
-def get_Cij_numpy(canton_order):
-    """Return the mij numpy matrix using the data from bfs.admin.ch."""
-    return json_to_numpy_matrix(get_Cij_home_work_bfs(), canton_order)
-
 
 def get_shape_file():
     """
@@ -335,4 +295,3 @@ def get_shape_file():
 
     paths = extract_zip(zippath, shapefile, DATA_MAP_DIR)
     return os.path.splitext(paths[0])[0]
-
