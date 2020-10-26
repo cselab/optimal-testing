@@ -4,8 +4,6 @@ This file provides access to all relevant data aobut Swiss cantons and COVID-19:
     - connectivity matrix between cantons
     - number of cases per day, for each canton
 """
-
-from epidemics import DATA_CACHE_DIR, DATA_DOWNLOADS_DIR
 import numpy as np
 import datetime
 import os
@@ -19,6 +17,7 @@ import inspect
 import json
 import pickle
 
+DATA_DOWNLOADS_DIR = "./downloads"
 DAY = datetime.timedelta(days=1)
 
 def download(url):
@@ -28,72 +27,6 @@ def download(url):
     data = req.read()
     print("Done.", flush=True)
     return data
-
-def cache_to_file(target, dependencies=[]):
-    """Factory for a decorator that caches the result of a no-argument function and stores it to a target file.
-
-    Handles JSON, pickle and pandas.DataFrame CSV files.
-
-    Arguments:
-        target: The target cache filename.
-        dependencies: The list of files that the result depends on.
-
-    If the target file exists but is older than any of the dependencies, it will be recomputed.
-    """
-    target = Path(target)
-    dependencies = [Path(d) for d in dependencies]
-
-    target_str = str(target)
-
-    if target_str.endswith('.json'):
-        def load(path):
-            with open(path) as f:
-                return json.load(f)
-
-        def save(content, path):
-            with open(path, 'w') as f:
-                json.dump(content, f)
-
-    elif target_str.endswith('.pickle'):
-        def load(path):
-            with open(path, 'rb') as f:
-                return pickle.load(f)
-
-        def save(content, path):
-            with open(path, 'wb') as f:
-                pickle.dump(content, f)
-
-    elif target_str.endswith('.df.csv'):
-        load = pd.read_csv
-
-        def save(content, path):
-            with open(path, 'w') as f:
-                f.write(content.to_csv(index=False))
-
-    else:
-        raise ValueError(f"Unrecognized extension '{target.suffix}'. "
-                         f"Only .json and .pickle supported.")
-
-    def decorator(func):
-        all_dependencies = dependencies + [Path(inspect.getfile(func))]
-
-        def inner():
-            try:
-                modified_time = target.stat().st_mtime
-            except FileNotFoundError:
-                pass
-            else:
-                if all(modified_time > d.stat().st_mtime
-                       for d in all_dependencies):
-                    print(f"Loading the result of `{func.__name__}` from the cache file `{target}`.")
-                    return load(target)
-
-            result = func()
-            target.parent.mkdir(parents=True, exist_ok=True)
-            save(result, target)
-            return result
-        return functools.wraps(func)(inner)
-    return decorator
 
 def download_and_save(url, path, cache_duration=1000000000, load=True):
     """Download the URL, store to a file, and return its content.
@@ -216,7 +149,7 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
     Returns a dictionary of lists {canton abbreviation: number of cases per day}.
     """
     url = 'https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv'
-    path = DATA_DOWNLOADS_DIR / 'covid19_cases_switzerland_openzh.csv'
+    path = DATA_DOWNLOADS_DIR + 'covid19_cases_switzerland_openzh.csv'
 
     raw = download_and_save(url, path, cache_duration=cache_duration)
     rows = raw.decode('utf8').split()
@@ -231,9 +164,8 @@ def fetch_openzh_covid_data(*, cache_duration=3600):
             data[canton].append(float(cell or 'nan'))
     return data
 
-COMMUTE_ADMIN_CH_CSV = DATA_DOWNLOADS_DIR / 'switzerland_commute_admin_ch.csv'
+COMMUTE_ADMIN_CH_CSV = DATA_DOWNLOADS_DIR + 'switzerland_commute_admin_ch.csv'
 
-@cache_to_file(DATA_CACHE_DIR / 'bfs_residence_work_cols12568.df.csv')
 def get_residence_work_cols12568():
     # (residence canton initial,
     #  residence commune number,
@@ -241,7 +173,7 @@ def get_residence_work_cols12568():
     #  work commune number,
     #  number of employed people)
     url = 'https://www.bfs.admin.ch/bfsstatic/dam/assets/8507281/master'
-    path = DATA_DOWNLOADS_DIR / 'bfs_residence_work.xlsx'
+    path = DATA_DOWNLOADS_DIR + 'bfs_residence_work.xlsx'
     download_and_save(url, path, load=False)
     print(f"Loading {path}...", flush=True)
     sheet = pd.read_excel(path, sheet_name='Commune of residence perspect.',
@@ -249,7 +181,6 @@ def get_residence_work_cols12568():
     sheet.columns = ('canton_home', 'number_home', 'canton_work', 'number_work', 'num_people')
     return sheet
 
-@cache_to_file(DATA_CACHE_DIR / 'home_work_people.json',dependencies=[COMMUTE_ADMIN_CH_CSV])
 def get_Cij_home_work_bfs():
     """
     Returns a dictionary
@@ -286,12 +217,12 @@ def get_shape_file():
     """
     Downloads and returns path to shape file with cantons.
     """
-    zippath = DATA_DOWNLOADS_DIR / "swissBOUNDARIES3D.zip"
+    zippath = DATA_DOWNLOADS_DIR + "swissBOUNDARIES3D.zip"
     download_and_save("https://shop.swisstopo.admin.ch/shop-server/resources/products/swissBOUNDARIES3D/download", zippath)
 
 
     shapefile = "BOUNDARIES_2020/DATEN/swissBOUNDARIES3D/SHAPEFILE_LV95_LN02/swissBOUNDARIES3D_1_3_TLM_KANTONSGEBIET"
-    DATA_MAP_DIR = DATA_DOWNLOADS_DIR / "map"
+    DATA_MAP_DIR = DATA_DOWNLOADS_DIR + "map"
 
     paths = extract_zip(zippath, shapefile, DATA_MAP_DIR)
     return os.path.splitext(paths[0])[0]
