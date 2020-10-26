@@ -19,7 +19,6 @@ add_library(
     # functions `Solver::solve`, so there's not that many files here.
     ${SRC_DIR}/data.cpp
     ${SRC_DIR}/model.cpp
-    ${SRC_DIR}/utils/assert.cpp
     ${SRC_DIR}/utils/signal.cpp
 )
 set_property(TARGET libepidemics_core PROPERTY POSITION_INDEPENDENT_CODE ON)
