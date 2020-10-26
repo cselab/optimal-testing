@@ -156,7 +156,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--nlive',type=int  , default=50 ,help="number of live samples")
     parser.add_argument('--dlogz',type=float, default=0.1,help="dlogz criterion"       )
-    parser.add_argument('--cores',type=int  , default=96 ,help="number of cores"       )
+    parser.add_argument('--cores',type=int  , default=2 ,help="number of cores"       )
     parser.add_argument('--case' ,type=int  , default=2  ,help="2 or 3"                )
     args = parser.parse_args(argv)
 

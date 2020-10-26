@@ -64,13 +64,13 @@ def posterior_plots(result,case):
        jmax_1 = 4 
        jmax_2 = 5
     elif case == 3:
-       lab2 = ["θ\u2080","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082"]
+       lab2 = ["θ\u2080","b\u2081","b\u2082","δ\u2081","δ\u2082","θ\u2081","θ\u2082"]
        lab.extend(lab2)
        lab.extend(names)
        jmax_1 = 5 
        jmax_2 = 5
     elif case == 4:
-       lab2 = ["θ\u2080","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082","λ"]
+       lab2 = ["θ\u2080","b\u2081","b\u2082","δ\u2081","δ\u2082","θ\u2081","θ\u2082","λ"]
        lab.extend(lab2)
        lab.extend(names)
        jmax_1 = 6 
@@ -88,10 +88,10 @@ def posterior_plots(result,case):
           fig.delaxes(ax_loc)
        else:
           hist, bins, _ = ax_loc.hist(samplesTmp[:, i], num_bins,  color="green", ec='black',alpha=0.5,density=True)
-          ax_loc.tick_params(axis='both', which='major', labelsize=22)
+          ax_loc.tick_params(axis='both', which='major', labelsize=28)
           ax_loc.set_title(lab[i],fontsize=30)
-          ax_loc.xaxis.set_major_locator(plt.MaxNLocator(4))
-          ax_loc.yaxis.set_major_locator(plt.MaxNLocator(5))
+          ax_loc.xaxis.set_major_locator(plt.MaxNLocator(3))
+          ax_loc.yaxis.set_major_locator(plt.MaxNLocator(3))
        i += 1
     #fig.tight_layout()
     '''
@@ -234,5 +234,5 @@ if __name__=='__main__':
     m = 1 
     res = pickle.load( open( "case"+str(case) + "/samples_"+str(case)+".pickle", "rb" ) )
     res.summary()
-    #posterior_plots(res,case)
-    confidence_intervals_daily_reported(res,case,m)
+    posterior_plots(res,case)
+    #confidence_intervals_daily_reported(res,case,m)

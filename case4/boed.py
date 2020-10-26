@@ -4,11 +4,10 @@ from scipy.special import loggamma
 from dynesty import NestedSampler
 from multiprocessing import Pool
 import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../covid19/epidemics/cantons/py'))
-from run_osp_cases import *
 from scipy.stats import multivariate_normal
 
-
+sys.path.append(os.path.join(os.path.dirname(__file__), '../nested-sampling'))
+from seiin import *
 from create_data import *
 
 ic_cantons = 12

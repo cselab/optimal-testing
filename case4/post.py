@@ -266,6 +266,41 @@ def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
     fig3.savefig("error.pdf",dpi=1000)
 
 
+####################################################################################################
+def findR(results):
+####################################################################################################	
+
+    jj = -1
+    colors = [COLORS['mediumorchid'],COLORS['silver']] 
+    Names = ['optimal testing','sub-optimal testing']
+    
+    fig, ax = plt.subplots()
+    for result in results:
+        jj += 1
+        samples = getPosteriorFromResult(result)
+        Rlist=[]
+        for i in range(samples.shape[0]):
+           a = samples[i,2]
+           mu = samples[i,1]
+           D = samples[i,4]
+           b = samples[i,0]
+           R = b*D*((1.0-a)*mu+a)
+           Rlist.append(R)
+        Rm = np.average(Rlist)
+        #h  = np.histogram(Rlist, bins=100, range=(0,8))
+
+        print(Rm)
+        ax.hist(Rlist,bins=60, density=True, alpha=0.3, color=colors[jj]) 
+    ax.set_ylabel("Relative frequency")
+    ax.set_xlabel("Effective Reproduction number")
+    ax.set_xlim((0.4,7.5))
+    fig.tight_layout()
+    fig.savefig("Rt.pdf")
+           #simulation = model(days,samples[i,:],case)
+
+
+
+
 
 ####################################################################################################
 if __name__ == "__main__":
@@ -285,12 +320,13 @@ if __name__ == "__main__":
   res.append(pickle.load(open("files/optimal_case"+str(case)+"_sensor"+str(sensors)+".pickle", "rb" )))
   res.append(pickle.load(open("files/uniform_case"+str(case)+"_sensor"+str(sensors)+".pickle", "rb" )))
 
-  fname = []
-  fname.append("files/optimal_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
-  fname.append("files/uniform_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
+  ##fname = []
+  ##fname.append("files/optimal_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
+  ##fname.append("files/uniform_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
   #if case == 1:
   #  plotNestedResult(res[0],res[1],dims=8,labels=["b\u2080","μ ","α ","Z ","D ","θ ","dispersion","sigma"],fname="marginal_case"+str(case) +"_sensors"+str(sensors))
   #elif case == 2:
   #  plotNestedResult(res[0],res[1],dims=12,labels=["b\u2080","μ ","α ","Z ","D ","θ ","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082"],fname="marginal_case"+str(case) +"_sensors"+str(sensors))
 
-  confidence_intervals_CH(results=res,fname=fname,sensors=sensors,m=m,case=case)
+  ##confidence_intervals_CH(results=res,fname=fname,sensors=sensors,m=m,case=case)
+  findR(results=res)
