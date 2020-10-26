@@ -6,7 +6,7 @@ samples.npy
 ._*
 .__*
 nested-sampling/._*
-nested-sampling/.__*
+nested-sampling/__*
 *.pdf
 *.npy
 *.sh
