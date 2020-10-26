@@ -60,3 +60,13 @@ Finally, the sequential optimization will be applied, to find the optimal test a
 1. Data [openZH database](https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv). For the inference on the swiss data we do not use the NaN values.
 2. Nested sampling with the dynesty library [Dynesty](https://dynesty.readthedocs.io/en/latest/)
 3. Korali library [Korali](https://github.com/cselab/korali)
+
+
+## Brief description of available scripts
+1. common.py : contains the dates used for test allocation for the four cases.
+2. nested.py : does the nested-sampling. The prior distributions for the model parameters used for each case can be found here.
+3. osp.py    : utility function evaluation
+4. samples.py: evaluates the model at model parameter samples
+5. seiin.py  : wrapper for the employed epidemiological model's C++ code
+6. swiss_cantons.py : will download data used for cases 2,3,4 as well as cantons connections matrix for epidemiological model
+
