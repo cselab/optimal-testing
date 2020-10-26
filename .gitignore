@@ -4,7 +4,9 @@ _korali_result/
 canton_daily_cases.npy
 samples.npy
 ._*
+.__*
 nested-sampling/._*
+nested-sampling/.__*
 *.pdf
 *.npy
 *.sh
