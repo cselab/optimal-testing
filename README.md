@@ -1,40 +1,43 @@
-# Optimal Testing Strategies for Identification of Asymptomatic COVID-19 Infections
+# Optimal Allocation of Limited Test Resources for the Quantification of COVID-19 Infections
 
-This repository contains the code to compute optimal testing strategies to identify asymptomatic infections for COVID-19 in Switzerland.
+This repository contains the code to compute optimal testing allocations to identify asymptomatic infections for COVID-19 in Switzerland.
 
-It relies on three libraries:
+It relies on two libraries:
 
-1. **covid19**: provides the epidemiological model
-2. **korali**:  provides the algorithm to compute the optimal testing strategy.
-3. **dynesty**: nested sampling algorithm
+1. **korali**:  provides the algorithm to compute the optimal testing strategy.
+2. **dynesty**: nested sampling algorithm, to sample the epidemiological model and compute the Monte-Carlo integral for the expected utility
+
+Additionally, the employed epidemiological model is coded in C++ and uses python bindings. It relies on:
+
+1. **Cmake**: minimum required version 3.12 
+2. **boost**: 
+
+In the following, we provide a detailed explanation on how to clone the directory, install the code and use it.
+
+
+## Clone the directory
+
+`git clone --recurse submodules https://github.com/cselab/optimal-testing`
+
 
 ## Installation
 
-In the following we provide instruction to install these three libraries, assuming that you are in the root folder of this repository.
+First, install Cmake https://wwwcmake.org/ and boost https://www.boost.org/ .
+Then compile the epidemiological model as follows:
 
-### Install the COVID19 library
+1. `cd optimal-testing/covid19`
+2. `mkdir -p build`
+3. `cd build`
+4. `cmake ..`
+5. `make`
 
-1. `git clone git@github.com:cselab/covid19.git`
-2. `cd covid19`
-3. `git submodule update --init --recursive`
-4. `mkdir build`
-5. `cd build`
-6. `cmake ..`
-7. `make -j`
-
-After compiling the **covid19** you have to add the directories containing covid19 and the subdirectory build to your pythonpath by running `export PYTHONPATH=/path/to/covid19:/path/to/covid19/build:$PYTHONPATH`
-
-In order to test whether this was successful run the command `python3 -c "import libepidemics"`. If there is no error you are ready to use **covid19** to simulate epidemiological models.`
-
-### Install the KORALI library
+Second, install the Korali library [Korali's homepage](https://www.cse-lab.ethz.ch/korali/):
 
 1. `git clone git@github.com:cselab/korali.git`
 2. `cd korali`
 3. `./install`
 
-In order to test whether this was successful run the command ``python3 -c "import korali"`. If there is no error you are ready to use **korali** to solve many kinds of Bayesian problems. To get more information visit [Korali's homepage](https://www.cse-lab.ethz.ch/korali/).
-
-### Install the DYNESTY library
+Third, install the dynesty library by using pip3:
 
 1. `pip3 install dynesty`
 
@@ -50,9 +53,9 @@ In order to test whether this was successful run the command ``python3 -c "impor
 5. Evaluate the model at the samples you took from steps 2,3,4 or at uniformly distributed samples
    `mpirun -n 16 ./samples.py --case X --samples 100`
    This will produce 100x100 samples. They will be stored in directory caseX, X=1,2,3 in multiple files.
-6. Go back to the root directory, or login again if you fell asleep when nested sampling was running.
+6. Go back to the root directory.
    `cd ..`
-7. Run the optimal sensor placement
+7. Run the optimal test allocation
    `mpirun -n 128 ./run-sequential.py --nSensors 3 --path './nested-sampling/caseX' --Ny 100 --Ntheta 100 --case X`
     where X=1,2,3 
 
@@ -61,7 +64,7 @@ In order to test whether this was successful run the command ``python3 -c "impor
    `python3 plot.py --case Y`
    where Y=2 or Y=3. This will produce the one-dimensional marginalized posteriors for the model and nuisance parameters as well as the fits for the reported cases in each canton.
 
-## Plot the results (part 2/2, sensor placement)
+## Plot the results (part 2/2, test allocation)
 1. Go to the figures directory
 3. To plot the illustration of the different cases, run `python3 plot-scenarios.py`. The resulting figure can be found in caseY/.
 2. Run the plotting script `python3 plot-ots.py --case Y` where Y=1,2,3. This will create the plots for the different cases as shown in the publication. The figures are saved in figures/caseY.
