@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import numpy as np
 import pickle,os,sys,argparse,scipy,random
-sys.path.append('../nested-sampling')
+sys.path.append('..')
 from seiin import *
 from scipy.stats import multivariate_normal
 
@@ -36,7 +36,7 @@ def GetNewSamples(day_max,case):
     np.random.seed(666)
     sigma_mean = np.zeros(day_max)  
     for i in range(day_max):
-      temp = np.load("../nested-sampling/case"+ str(case) + "/tensor_Ntheta={:05d}.npy".format(i))
+      temp = np.load("../case"+ str(case) + "/day={:05d}.npy".format(i))
       sigma_mean[i] = np.mean(temp.flatten())
 
     #model run with maximum a posteriori estimate

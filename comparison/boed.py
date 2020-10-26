@@ -6,9 +6,11 @@ from multiprocessing import Pool
 import os.path
 from scipy.stats import multivariate_normal
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../nested-sampling'))
+#sys.path.append(os.path.join(os.path.dirname(__file__), '../nested-sampling'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from seiin import *
 from create_data import *
+
 
 ic_cantons = 12
 
@@ -60,7 +62,7 @@ class model_nested:
 
     self.sigma_mean = np.zeros(self.days)  
     for i in range(self.days):
-      temp = np.load(path_data + "tensor_Ntheta={:05d}.npy".format(i))
+      temp = np.load(path_data + "day={:05d}.npy".format(i))
       self.sigma_mean[i] = np.mean(temp.flatten())
 
     sigma_mean = np.zeros(self.points)
@@ -230,6 +232,7 @@ if __name__=='__main__':
     args = parser.parse_args(argv)
 
     u = np.load("files/"+args.result)
+    print(u)
     cantons  = u.shape[1]
     days = 8
     if args.case == 2:
