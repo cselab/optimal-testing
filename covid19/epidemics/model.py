@@ -9,8 +9,8 @@ import os
 import sys
 import urllib.request
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'build'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'build'))
 
 try:
     import libepidemics
@@ -18,10 +18,8 @@ except ModuleNotFoundError:
     sys.exit("libepidemics not found. Did you forget to compile the C++ code?")
 
 from epidemics.data import DATA_CACHE_DIR
-#from epidemics.data.cases import get_region_cases
 from epidemics.tools.tools import flatten
 import epidemics.data.swiss_cantons as swiss_cantons
-#import epidemics.data.swiss_municipalities as swiss_municipalities
 
 
 class ModelData:
