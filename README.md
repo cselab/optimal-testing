@@ -17,7 +17,7 @@ In the following, we provide a detailed explanation on how to clone the director
 
 ## Clone the directory
 
-`git clone --recurse submodules https://github.com/cselab/optimal-testing`
+git clone --recurse-submodules https://github.com/cselab/optimal-testing
 
 
 ## Installation
