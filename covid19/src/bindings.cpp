@@ -53,11 +53,8 @@ static IntegratorSettings integratorSettingsFromKwargs(py::kwargs kwargs) {
 
 static void exportModelData(py::module &m) {
     py::class_<ModelData>(m, "ModelData")
-        .def(py::init<std::vector<std::string>, std::vector<double>,
-                      std::vector<double>, 
-                      std::vector<double>, std::vector<double>>(),
-             "region_keys"_a, "Ni"_a, "Mij"_a, "Cij"_a,
-             "Ui"_a)
+        .def(py::init<std::vector<std::string>, std::vector<double>,std::vector<double>>(),
+             "region_keys"_a, "Ni"_a, "Mij"_a)
         .def_readonly("Mij", &ModelData::Mij)
         .def_readonly("num_regions", &ModelData::numRegions);
 }

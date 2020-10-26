@@ -99,12 +99,6 @@ public:
     const std::vector<size_t>& nonzero_Mij(size_t from_or_in) const {
         return md_.nonzero_Mij[from_or_in];
     }
-    double C(int from, int to) const {
-        return md_.Cij[from * md_.numRegions + to];
-    }
-    double C_plus_Ct(int from, int to) const {
-        return md_.C_plus_Ct[from * md_.numRegions + to];
-    }
 
     /// Solve the ODE.
     std::vector<State> solve(

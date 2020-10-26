@@ -6,14 +6,10 @@ namespace epidemics {
 ModelData::ModelData(
         std::vector<std::string> regionKeys_,
         std::vector<double> Ni_,
-        std::vector<double> Mij_,
-        std::vector<double> Cij_,
-        std::vector<double> Ui_) :
+        std::vector<double> Mij_):
     regionKeys(std::move(regionKeys_)),
     Ni(std::move(Ni_)),
-    Mij(std::move(Mij_)),
-    Cij(std::move(Cij_)),
-    Ui(std::move(Ui_))
+    Mij(std::move(Mij_))
 {
     init();
 }
@@ -21,15 +17,6 @@ ModelData::ModelData(
 void ModelData::init() {
     size_t K = regionKeys.size();
     numRegions = K;
-    invNi.resize(Ni.size(), 0.0);
-    for (size_t i = 0; i < invNi.size(); ++i)
-        invNi[i] = 1.0 / Ni[i];
-
-    C_plus_Ct.resize(Cij.size());
-    for (size_t i = 0; i < K; ++i)
-    for (size_t j = 0; j < K; ++j)
-        C_plus_Ct[i * K + j] = Cij[i * K + j] + Cij[j * K + i];
-
     nonzero_Mij.resize(numRegions);
     for (size_t i = 0; i < K; ++i) {
         for (size_t j = 0; j < K; ++j) {
@@ -73,10 +60,6 @@ ModelData readModelData(const char *filename) {
                 out.Mij[i * N + j] = 0.0;
         }
 
-    out.Ui.resize(N);
-    for (double &u : out.Ui)
-        if (fscanf(f, "%lg", &u) != 1)
-            DIE("Reading user-defined failed.\n");
 
     fclose(f);
 
