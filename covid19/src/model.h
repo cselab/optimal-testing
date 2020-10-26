@@ -1,11 +1,11 @@
 #pragma once
 
+#include "data.h"
+#include "integrator.h"
+
 #include <cassert>
 #include <vector>
 #include <utility>
-
-#include "data.h"
-#include "integrator.h"
 
 namespace epidemics {
 

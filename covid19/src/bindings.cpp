@@ -1,12 +1,11 @@
+#include "data.h"
+#include "model.h"
+#include "utils/signal.h"
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "utils/signal.h"
-
 #include <boost/array.hpp>
-
-#include "data.h"
-#include "model.h"
 
 namespace py = pybind11;
 using namespace py::literals;

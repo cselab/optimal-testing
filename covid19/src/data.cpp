@@ -1,5 +1,4 @@
 #include "data.h"
-#include <utils/assert.h>
 
 namespace epidemics {
 

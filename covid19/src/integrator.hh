@@ -1,8 +1,8 @@
 #pragma once
 
 #include "integrator.h"
+#include "utils/signal.h"
 
-#include <utils/signal.h>
 #include <boost/numeric/odeint.hpp>
 
 namespace epidemics {
