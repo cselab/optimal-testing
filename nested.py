@@ -6,14 +6,16 @@ import numpy as np
 import pickle,os,sys,argparse,time
 from dynesty import NestedSampler
 from multiprocessing import Pool
-from data import *
 from scipy.special import loggamma
 from seiin import *
 
+sys.path.append('./covid19/')
+import swiss_cantons
+
 ic_cantons = 12
-refy2_cantons = prepareData(days=T_DATA_CASE_2)
-refy3_cantons = prepareData(days=T_DATA_CASE_3)
-refy4_cantons = prepareData(days=T_DATA_CASE_4)
+refy2_cantons = swiss_cantons.prepareData(days=T_DATA_CASE_2)
+refy3_cantons = swiss_cantons.prepareData(days=T_DATA_CASE_3)
+refy4_cantons = swiss_cantons.prepareData(days=T_DATA_CASE_4)
 
 '''
 Prior distributions used in the Bayesian inference for cases 2 and 3.
@@ -48,7 +50,6 @@ def model_transformation_3(u):
         x[i] = 50*u[i]
     x[12+ic_cantons] = u[12+ic_cantons]*0.5#dispersion
     return x
-
 def model_transformation_4(u):
     x = np.zeros(len(u))
     x[0] = 0.8  + 1.00*u[0]#b0
@@ -62,12 +63,8 @@ def model_transformation_4(u):
     x[8] = 20.0 + 10.00*u[8]#d1
     x[9] = 30.0 + 10.00*u[9]#d2
     x[10] = u[10]*x[5]#theta 1
-    x[11] = u[11]*x[5]#theta 2
-    
-    #x[12] = 100 + 20*u[12]#d3
-    #x[12] = 102 + 0.5*u[12]#d3
+    x[11] = u[11]*x[5]#theta 2  
     x[12] = 0.03   * u[12]#lambda
-
     for i in range(13,13+ic_cantons):
         x[i] = 50*u[i]
     x[13+ic_cantons] = u[13+ic_cantons]*0.5#dispersion
@@ -156,34 +153,33 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--nlive',type=int  , default=50 ,help="number of live samples")
     parser.add_argument('--dlogz',type=float, default=0.1,help="dlogz criterion"       )
-    parser.add_argument('--cores',type=int  , default=2 ,help="number of cores"       )
+    parser.add_argument('--cores',type=int  , default=2 ,help="number of cores"        )
     parser.add_argument('--case' ,type=int  , default=2  ,help="2 or 3"                )
     args = parser.parse_args(argv)
 
-    model = model_2
-    model_transformation = model_transformation_2
-    ndim = 6 + ic_cantons + 1
-    if args.case == 3:
-       model = model_3
-       model_transformation = model_transformation_3
-       ndim = 12 + ic_cantons + 1
-    if args.case == 4:
-       model = model_4
-       model_transformation = model_transformation_4
-       ndim = 12 + ic_cantons + 1 + 1
-
-    t = -time.time()
-    fname = 'samples_' + str(args.case) + '.pickle'
-    pool = MyPool(args.cores)
-    sampler = NestedSampler(model,model_transformation,ndim,nlive=args.nlive, bound='multi', pool=pool)
-    sampler.run_nested(maxiter=1e8, dlogz=args.dlogz, add_live=True)
-    res = sampler.results
-    res.summary()
-    with open(fname, 'wb') as f:
-        pickle.dump(res, f)
-    t += time.time()
-    print("Total time=",t)
-
-    fname = '__samples_' + str(args.case) + str(args.nlive) + '.pickle'
-    with open(fname, 'wb') as f:
-        pickle.dump(res, f)
+    if args.case > 1:
+        model = model_2
+        model_transformation = model_transformation_2
+        ndim = 6 + ic_cantons + 1
+        if args.case == 3:
+           model = model_3
+           model_transformation = model_transformation_3
+           ndim = 12 + ic_cantons + 1
+        if args.case == 4:
+           model = model_4
+           model_transformation = model_transformation_4
+           ndim = 12 + ic_cantons + 1 + 1
+    
+        t = -time.time()
+        from pathlib import Path
+        Path("case"+str(args.case)).mkdir(parents=True, exist_ok=True)
+        fname = 'case'+str(args.case)+'/samples_' + str(args.case) + '.pickle'
+        pool = MyPool(args.cores)
+        sampler = NestedSampler(model,model_transformation,ndim,nlive=args.nlive, bound='multi', pool=pool)
+        sampler.run_nested(maxiter=1e8, dlogz=args.dlogz, add_live=True)
+        res = sampler.results
+        res.summary()
+        with open(fname, 'wb') as f:
+            pickle.dump(res, f)
+        t += time.time()
+        print("Total time=",t)

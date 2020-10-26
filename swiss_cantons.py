@@ -230,3 +230,46 @@ def get_shape_file():
 
     paths = extract_zip(zippath, shapefile, DATA_MAP_DIR)
     return os.path.splitext(paths[0])[0]
+
+name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
+        'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
+        'TI','UR','VD','VS','ZG','ZH']
+
+def nan_helper(y):
+    return np.isnan(y), lambda z: z.nonzero()[0]
+
+def prepareData(days = -1,country = False):    
+    cantons = 26
+
+    IR = fetch_openzh_covid_data()
+
+    if days == -1:
+        days = len(IR['TI'])
+
+    data = np.zeros((cantons,days))
+
+    for c in range(cantons):
+        c_i = name[c]
+        data[c,0] = IR[c_i][0]
+        for d in range(1,days):
+            data[c,d] = IR[c_i][d] - IR[c_i][d-1]   
+
+
+    y = []
+    if country == True:
+        for d in range(days):
+            tot = 0.0
+            for c in range(cantons):
+                if np.isnan(data[c,d]) == False:
+                    tot += data[c,d]
+            y.append(tot) 
+        return y
+
+    for c in range(cantons):
+        d1 = np.copy(data[c,:])
+        for d in range(days):
+            if np.isnan(d1[d]) == False:
+                y.append(c)
+                y.append(d)
+                y.append(d1[d])
+    return y

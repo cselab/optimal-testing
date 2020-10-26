@@ -3,7 +3,6 @@ import numpy as np
 import pickle,os,sys,argparse,datetime,random
 import matplotlib.pyplot as plt
 from dynesty import plotting as dyplot
-from data import *
 from seiin import *
 import matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
@@ -13,6 +12,7 @@ from scipy.stats import nbinom
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
+import swiss_cantons
 
 def resample_equal_with_idx(samples, weights, rstate=None):
   if rstate is None:
@@ -93,17 +93,7 @@ def posterior_plots(result,case):
           ax_loc.xaxis.set_major_locator(plt.MaxNLocator(3))
           ax_loc.yaxis.set_major_locator(plt.MaxNLocator(3))
        i += 1
-    #fig.tight_layout()
-    '''
-    if case == 2:
-      fig.set_size_inches(20.0, 25.0)
-    elif case == 3:
-      fig.set_size_inches(25.0, 25.0)
-    elif case == 4:
-      fig.set_size_inches(30.0, 25.0)
-    '''
-
-    fig.savefig("posterior"+str(case)+".pdf",dpi=1000,bbox_inches = 'tight',pad_inches = 0.2)
+    fig.savefig("case"+str(case)+"/posterior"+str(case)+".pdf",dpi=1000,bbox_inches = 'tight',pad_inches = 0.2)
 
 
 def model(days,p):
@@ -114,7 +104,20 @@ def model(days,p):
 ####################################################################################################
 def confidence_intervals_daily_reported(result,case,m):
 ####################################################################################################
-    data  = np.load("canton_daily_cases.npy")
+    name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
+            'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
+            'TI','UR','VD','VS','ZG','ZH']
+
+    IR = swiss_cantons.fetch_openzh_covid_data()
+    days = len(IR['TI'])
+    cantons = 26
+    data = np.zeros((cantons,days))
+    for c in range(cantons):
+        c_i = name[c]
+        data[c,0] = IR[c_i][0]
+        for d in range(1,days):
+            data[c,d] = IR[c_i][d] - IR[c_i][d-1]
+
     days_data = T_DATA_CASE_2 
     if case == 3:
        days_data = T_DATA_CASE_3
@@ -221,7 +224,7 @@ def confidence_intervals_daily_reported(result,case,m):
     #fig.legend(handles, labels, loc='lower center',ncol=1,bbox_to_anchor=(0.6, 0.1),fontsize='xx-large')
     fig.set_size_inches(20.0, 20.0)
     plt.tight_layout()
-    fig.savefig("cantons.pdf",dpi=1000 ,format="pdf")
+    fig.savefig("case"+str(case)+"/cantons.pdf",dpi=1000 ,format="pdf")
     print("Done plotting predictions.")
 
 
