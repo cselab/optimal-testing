@@ -140,7 +140,7 @@ def confidence_intervals_daily_reported(result,case,m):
     parameters = samples[np.where( np.abs(logl-np.max(logl))<1e-10 )]
     parameters = parameters.reshape(ndim)
     simulation = model(days,parameters)
-    np.save("map.npy",parameters)
+    np.save("case"+str(case)+"/map.npy",parameters)
 
     prediction_matrix         = np.zeros ( ( samples.shape[0]//m, days         ) )    
     prediction_matrix_cantons = np.zeros ( ( samples.shape[0]//m, days, CANTONS) )    
@@ -161,7 +161,7 @@ def confidence_intervals_daily_reported(result,case,m):
     # country
     ################################################################################################
     fig, ax = plt.subplots(constrained_layout=True)
-    reference = prepareData(days=days_data,country = True)
+    reference = swiss_cantons.prepareData(days=days_data,country = True)
     prediction = []
     for i in range ( days ):
         cases = simulation[i].E() 
@@ -177,7 +177,7 @@ def confidence_intervals_daily_reported(result,case,m):
     plt.fill_between(dates, qlo, qhi,label=str(100*p)+"% confidence interval",color="green")
     #fig.legend()
     ax.grid()
-    fig.savefig("case" + str(case) + "_prediction_country.pdf",dpi=100 ,format="pdf")
+    fig.savefig("case" + str(case) + "/prediction_country.pdf",dpi=100 ,format="pdf")
 
     #Plot cantons
     #############
@@ -238,4 +238,4 @@ if __name__=='__main__':
     res = pickle.load( open( "case"+str(case) + "/samples_"+str(case)+".pickle", "rb" ) )
     res.summary()
     posterior_plots(res,case)
-    #confidence_intervals_daily_reported(res,case,m)
+    confidence_intervals_daily_reported(res,case,m)
