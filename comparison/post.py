@@ -10,27 +10,124 @@ from pandas.plotting import register_matplotlib_converters
 from matplotlib.dates import DateFormatter
 import matplotlib
 from datetime import timedelta
-#sys.path.append(os.path.join(os.path.dirname(__file__), '../covid19/epidemics/cantons/py'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../nested-sampling/'))
-#from run_osp_cases import *
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from seiin import *
-from nested_plot import *
-
-
+from dynesty import plotting as dyplot
 import matplotlib.colors as mcolors
 COLORS = mcolors.CSS4_COLORS
-
 
 ic_cantons=12
 cantons = 26
 p_conf = 0.99
 name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR','JU','LU','NE',\
         'NW','OW','SG','SH','SO','SZ','TG','TI','UR','VD','VS','ZG','ZH']
-    
-#p_mle_2 = np.load("files/mle2.npy")
-#d1 = p_mle_2[8]
-#d2 = p_mle_2[9]
 
+####################################################################################################
+def resample_equal_with_idx(samples, weights, rstate=None):
+####################################################################################################
+    if rstate is None:
+        rstate = np.random
+
+    if abs(np.sum(weights) - 1.) > 1e-9:  # same tol as in np.random.choice.
+        # Guarantee that the weights will sum to 1.
+        warnings.warn("Weights do not sum to 1 and have been renormalized.")
+        weights = np.array(weights) / np.sum(weights)
+
+    # Make N subdivisions and choose positions with a consistent random offset.
+    nsamples = len(weights)
+    positions = (rstate.random() + np.arange(nsamples)) / nsamples
+
+    # Resample the data.
+    idx = np.zeros(nsamples, dtype=np.int)
+    cumulative_sum = np.cumsum(weights)
+    i, j = 0, 0
+    while i < nsamples:
+        if positions[i] < cumulative_sum[j]:
+            idx[i] = j
+            i += 1
+        else:
+            j += 1
+
+    return samples[idx], idx
+####################################################################################################
+def getPosteriorFromResult1(result):
+#################################################################################################### 
+    weights = np.exp(result.logwt - result.logz[-1]) # normalized weights
+    samples, idx = resample_equal_with_idx(result.samples, weights)
+    return samples, idx
+####################################################################################################
+def plot_histogram(ax, theta,dims,color,alpha):
+####################################################################################################
+  dim = dims 
+  num_bins = 30
+  for i in range(dim):
+    if (dim == 1):
+      ax_loc = ax
+    else:
+      ax_loc = ax[i, i]
+
+    hist, bins, _ = ax_loc.hist(
+        theta[:, i], num_bins,  color=color, ec='black',alpha=alpha,
+        density=True)
+        #weights=np.zeros_like(theta[:, i]) + 1. / theta[:, i].size)
+####################################################################################################
+def plot_lower_triangle(ax, theta,dims,hide):
+####################################################################################################
+  dim = dims #theta.shape[1]
+  if (dim == 1):
+    return
+
+  for i in range(dim):
+    for j in range(i):
+      # returns bin values, bin edges and bin edges
+      H, xe, ye = np.histogram2d(theta[:, j], theta[:, i], 10, density=True)
+      # plot and interpolate data
+      ax[i, j].imshow(
+          H.T,
+          aspect="auto",
+          interpolation='spline16',
+          origin='lower',
+          extent=np.hstack((ax[j, j].get_xlim(), ax[i, i].get_xlim())),
+          cmap=plt.get_cmap('jet'))
+####################################################################################################
+def plotNestedResult(result1,result2,dims,labels,fname):
+####################################################################################################
+    fig, ax = plt.subplots(dims, dims, figsize=(20, 20))
+
+    samples, idx  = getPosteriorFromResult1(result1)
+    numdim     = len(samples[0])
+    numentries = len(samples)
+    samplesTmp = np.reshape(samples, (numentries, numdim))
+    plot_histogram(ax, samplesTmp,dims,color='lightgreen',alpha=0.5)
+    plot_lower_triangle(ax, samplesTmp,dims,False)
+
+
+    samples, idx  = getPosteriorFromResult1(result2)
+    numdim     = len(samples[0])
+    numentries = len(samples)
+    samplesTmp = np.reshape(samples, (numentries, numdim))
+    plot_histogram(ax, samplesTmp,dims,color='red',alpha=0.5)
+    plot_lower_triangle(ax.T, samplesTmp,dims,True)
+
+    for i in range (dims):
+       for j in range (dims):
+          if i!=j:
+             if i<j:
+                ax[i,j].set_xlabel(labels[i])
+                ax[i,j].set_ylabel(labels[j])
+             else:
+                ax[i,j].set_xlabel(labels[j])
+                ax[i,j].set_ylabel(labels[i])
+          else:
+             ax[i,j].set_xlabel(labels[i])
+             #ax[i,j].set_ylabel("relative frequency")
+             ax[i,j].set_ylabel("")
+
+    #plt.tight_layout()
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
+    
+    plt.savefig(fname+".pdf",format="pdf",dpi=100,bbox_inches='tight')
+####################################################################################################
 def distance(t1,t2,tau):
     dt = np.abs(t1-t2) / tau
     return np.exp(-dt)
@@ -42,48 +139,32 @@ def getPosteriorFromResult(result):
     samples = dyfunc.resample_equal(result.samples, weights) #Compute 10%-90% quantiles.
     return samples
 ####################################################################################################
-def model(days,THETA,case):
+def model(days,THETA):
 ####################################################################################################
   ic_cantons = 12
-  if case == 1:
-    par = [THETA[0],THETA[1],THETA[2],THETA[3],THETA[4],THETA[5]] 
-    for i in range (ic_cantons):
-        par.append(THETA[8+i])
-    return example_run_seiin(days,par,1000)
-  elif case == 2:
-    par = []
-    for i in range (12+ic_cantons):
-        par.append(THETA[i])
-    return example_run_seiin(days,par)
+  par = [THETA[0],THETA[1],THETA[2],THETA[3],THETA[4],THETA[5]] 
+  for i in range (ic_cantons):
+      par.append(THETA[8+i])
+  return example_run_seiin(days,par,1000)
 ####################################################################################################
-def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
+def confidence_intervals_CH(results,fname,sensors,m=1):
 ####################################################################################################	
-    p_mle = np.load("files/mle"+str(case)+".npy")
+    p_mle = np.load("../case2/map.npy")
     days = 21 - 7
-    if case == 2:
-       days = 21 + 15 + 5
     base  = datetime.datetime(2020, 2, 25) #February 25th, 2020
     dates = np.array([base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
-    #locator   = mdates.WeekdayLocator(interval=1)
-    #locator2  = mdates.WeekdayLocator(interval=2)
     locator   = mdates.DayLocator(interval=1)
     locator2  = mdates.DayLocator(interval=4)
     date_form = DateFormatter("%b %d")
 
     #1.Find reference solution
     exact = np.zeros ( (cantons, days) )
-    if case == 1:
-      p = [p_mle[0],p_mle[1],p_mle[2],p_mle[3],p_mle[4],p_mle[5]]
-      for i in range (ic_cantons):
-        p.append(p_mle[6+i])
-      print("MAP=",p)
-      r = example_run_seiin(days,p,1000)
-      for i in range(days):
-          exact[:,i] = np.asarray(r[i].Iu())
-    elif case == 2:
-      r = example_run_seiin(days,p_mle[0:len(p_mle)-1])
-      for i in range(days):
-          exact[:,i] = np.asarray(r[i].Iu())
+    p = [p_mle[0],p_mle[1],p_mle[2],p_mle[3],p_mle[4],p_mle[5]]
+    for i in range (ic_cantons):
+      p.append(p_mle[6+i])
+    r = example_run_seiin(days,p,1000)
+    for i in range(days):
+        exact[:,i] = np.asarray(r[i].Iu())
 
     #2.Plot country and cantons results  
     fig, ax = plt.subplots()
@@ -94,8 +175,8 @@ def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
     ax.plot(dates ,np.sum(exact,axis=0),".",color="black",label='reference')
 
     #3.Run model for all samples of theta
-    #colors = ['red','blue']
-    colors = [COLORS['mediumorchid'],COLORS['silver']] 
+    colors = ['red','blue']
+    #colors = [COLORS['mediumorchid'],COLORS['silver']] 
     Names = ['optimal testing','sub-optimal testing']
     prediction_matrix = []  
     jj = -1
@@ -105,7 +186,7 @@ def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
         prediction_matrix.append(np.zeros ( (samples.shape[0]//m, days, cantons ) ))
         for i in range(  samples.shape[0]//m):
            print (i,"/",samples.shape[0]//m,flush=True)
-           simulation = model(days,samples[i,:],case)
+           simulation = model(days,samples[i,:])
            prediction = []
            for d in range ( days ):
                cases = simulation[d].Iu()
@@ -153,34 +234,24 @@ def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
         else:
           axs[i0,i1].grid()   
 
-    #handles, labels = axs[4,1].get_legend_handles_labels()
-    #fig2.legend(handles, labels, loc='lower center',ncol=2,bbox_to_anchor=(0.6, 0.1))
     fig2.set_size_inches(14.5, 10.5)
     plt.tight_layout()
-
-    nnn = "_case" + str(case) + "_sensors" + str(sensors) 
 
     box = ax.get_position()
     ax.set_position([box.x0, box.y0 + box.height * 0.1,
                  box.width, box.height * 0.9])
-    #ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
-    #      fancybox=True, shadow=True, ncol=2,prop={'size': 8})
     ax.tick_params(labelsize=8)
 
-
-    fig.savefig ("Iu_country" +nnn+ ".pdf",dpi=1000)
+    fig.savefig ("Iu_country.pdf",dpi=1000)
     fig2.savefig("model.pdf",dpi=1000)
 
     print("Plotting error + model confidence intervals...")
     days = 21 - 7
-    if case == 2:
-       days = 38
 
     print ("Reading data for error model...")
-    path = "../nested-sampling/case" + str(case) +"/"
     sigma_mean  = np.zeros(days)  
     for i in range(days):
-        temp = np.load(path + "tensor_Ntheta={:05d}.npy".format(i))
+        temp = np.load("../case1/day={:05d}.npy".format(i))
         sigma_mean[i] = np.mean(temp.flatten())
     print ("Reading data for error model: completed.")
 
@@ -192,7 +263,6 @@ def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
       color = colors[jj]
       Name  = Names[jj]
       samples = getPosteriorFromResult(result)
-      assert case == 1
       #Plot for individual cantons
       qlo = np.quantile ( a= prediction_matrix[jj], q = 0.5 - p_conf/2 , axis = 0)
       qhi = np.quantile ( a= prediction_matrix[jj], q = 0.5 + p_conf/2 , axis = 0)
@@ -258,24 +328,15 @@ def confidence_intervals_CH(results,fname,sensors,m=1,case=1):
         else:
           ax3[i0,i1].grid()   
 
-    nnn = "_case" + str(case) + "_sensors" + str(sensors) 
-    #handles, labels = ax3[4,1].get_legend_handles_labels()
-    #fig3.legend(handles, labels, loc='lower center',ncol=2,bbox_to_anchor=(0.6, 0.1))
     fig3.set_size_inches(14.5, 10.5)
     plt.tight_layout()
-
-    #plt.show()
     fig3.savefig("error.pdf",dpi=1000)
-
-
 ####################################################################################################
 def findR(results):
 ####################################################################################################	
-
     jj = -1
     colors = [COLORS['mediumorchid'],COLORS['silver']] 
-    Names = ['optimal testing','sub-optimal testing']
-    
+    Names = ['optimal testing','sub-optimal testing']  
     fig, ax = plt.subplots()
     for result in results:
         jj += 1
@@ -289,46 +350,31 @@ def findR(results):
            R = b*D*((1.0-a)*mu+a)
            Rlist.append(R)
         Rm = np.average(Rlist)
-        #h  = np.histogram(Rlist, bins=100, range=(0,8))
-
-        print(Rm)
+        print("Mean Rt value for ", Names[jj], " = ",Rm)
         ax.hist(Rlist,bins=60, density=True, alpha=0.3, color=colors[jj]) 
     ax.set_ylabel("Relative frequency")
     ax.set_xlabel("Effective Reproduction number")
     ax.set_xlim((0.4,7.5))
     fig.tight_layout()
     fig.savefig("Rt.pdf")
-           #simulation = model(days,samples[i,:],case)
 
 
-
-
-
-####################################################################################################
 if __name__ == "__main__":
 
   argv = sys.argv[1:]
   parser = argparse.ArgumentParser()
-  parser.add_argument('--sensors',type=int)
-  parser.add_argument('--case'   ,default=1,type=int)
+  parser.add_argument('--surveys',default=2,type=int)
   args = parser.parse_args(argv)
+  surveys=args.surveys
 
-  sensors=args.sensors
-  case=args.case
-  assert case == 1
-
-  m=1
   res=[]
-  res.append(pickle.load(open("files/optimal_case"+str(case)+"_sensor"+str(sensors)+".pickle", "rb" )))
-  res.append(pickle.load(open("files/uniform_case"+str(case)+"_sensor"+str(sensors)+".pickle", "rb" )))
+  res.append(pickle.load(open("optimal_surveys"+str(surveys)+".pickle", "rb" )))
+  res.append(pickle.load(open("nonspecific_surveys"+str(surveys)+".pickle", "rb" )))
 
-  ##fname = []
-  ##fname.append("files/optimal_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
-  ##fname.append("files/uniform_case"+str(case)+"_sensor"+str(sensors)+"_data.npy")
-  #if case == 1:
-  #  plotNestedResult(res[0],res[1],dims=8,labels=["b\u2080","μ ","α ","Z ","D ","θ ","dispersion","sigma"],fname="marginal_case"+str(case) +"_sensors"+str(sensors))
-  #elif case == 2:
-  #  plotNestedResult(res[0],res[1],dims=12,labels=["b\u2080","μ ","α ","Z ","D ","θ ","b\u2081","b\u2082","d\u2081","d\u2082","θ\u2081","θ\u2082"],fname="marginal_case"+str(case) +"_sensors"+str(sensors))
-
-  ##confidence_intervals_CH(results=res,fname=fname,sensors=sensors,m=m,case=case)
+  fname = []
+  fname.append("optimal_surveys"+str(surveys)+"_data.npy")
+  fname.append("nonspecific_surveys"+str(surveys)+"_data.npy")
+  
+  plotNestedResult(res[0],res[1],dims=8,labels=["b\u2080","μ ","α ","Z ","D ","θ ","dispersion","sigma"],fname="marginal")
+  confidence_intervals_CH(results=res,fname=fname,sensors=surveys,m=1)
   findR(results=res)
