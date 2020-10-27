@@ -11,6 +11,29 @@ import swiss_cantons
 
 ic_cantons = 12
 
+def nan_helper(y):
+    return np.isnan(y), lambda z: z.nonzero()[0]
+def prepareData(days):
+    data = np.load("canton_daily_cases.npy")
+    cantons = data.shape[0]
+    if days == -1:
+    	days = data.shape[1]   
+    threshold =.0
+    y = []
+    for c in range(cantons):
+        d_ = np.copy(data[c,:])
+        #nans, x= nan_helper(d_)
+        #d_[nans]= np.interp(x(nans), x(~nans), d_[~nans])
+        if np.max(d_) < threshold :
+            continue
+        d1 = np.copy(data[c,:])
+        for d in range(days):
+            if np.isnan(d1[d]) == False:
+                y.append(c)
+                y.append(d)
+                y.append(d1[d])
+    return y
+
 def distance(t1,t2,tau):
     dt = np.abs(t1-t2) / tau
     return np.exp(-dt)
@@ -79,7 +102,8 @@ class model_nested:
     self.days = 8
     self.ndim = 7 + ic_cantons + 1
     self.p_mle = np.load("../case2/map.npy")
-    self.ref_y = swiss_cantons.prepareData(self.days)
+    #self.ref_y = swiss_cantons.prepareData(self.days)
+    self.ref_y = prepareData(self.days)
     assert len(self.data) % 3 == 0
 
     self.sigma_mean = np.zeros(self.days)  
@@ -172,7 +196,7 @@ class MyPool(object):
     def map(self, function, tasks):
         return self.pool.map(function, tasks)
 
-def GetNewSamples(cantons,times,day_max,name,nlive=500,dlogz=0.01,cores=12):
+def GetNewSamples(cantons,times,day_max,name,nlive=500,dlogz=0.01,cores=72):
     Iu_all = np.load("data_base.npy")
 
     Iu = []    
