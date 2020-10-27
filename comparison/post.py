@@ -370,6 +370,7 @@ if __name__ == "__main__":
   res=[]
   res.append(pickle.load(open("optimal_surveys"+str(surveys)+".pickle", "rb" )))
   res.append(pickle.load(open("nonspecific_surveys"+str(surveys)+".pickle", "rb" )))
+  findR(results=res)
 
   fname = []
   fname.append("optimal_surveys"+str(surveys)+"_data.npy")
@@ -377,4 +378,3 @@ if __name__ == "__main__":
   
   plotNestedResult(res[0],res[1],dims=8,labels=["b\u2080","μ ","α ","Z ","D ","θ ","dispersion","sigma"],fname="marginal")
   confidence_intervals_CH(results=res,fname=fname,sensors=surveys,m=1)
-  findR(results=res)

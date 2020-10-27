@@ -235,9 +235,6 @@ name = ['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
         'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
         'TI','UR','VD','VS','ZG','ZH']
 
-def nan_helper(y):
-    return np.isnan(y), lambda z: z.nonzero()[0]
-
 def prepareData(days = -1,country = False):    
     cantons = 26
 
