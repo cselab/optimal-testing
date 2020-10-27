@@ -12,21 +12,6 @@ import swiss_cantons
 plt.rcParams.update({'font.size': 5
     })
 
-#Case I
-T_DATA_CASE_1 = 0 
-
-#Case II: First intervention announced
-#Data is available for the first 21 days and sensors are placed in the next two weeks.
-T_DATA_CASE_2 = 21
-
-#Case III: Loosening of measures annoucned
-#Data is available for the first 102 days and sensors are placed in the next 38 days.
-T_DATA_CASE_3 = 102
-
-#Case IV: Loosening of measures annoucned
-#Data is available for the first 136 days and sensors are placed in the next 38 days.
-T_DATA_CASE_4 = 136 #July 9
-
 CANTON_NAMES = np.array(['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
         'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
         'TI','UR','VD','VS','ZG','ZH'])
@@ -313,8 +298,7 @@ class utility:
                     ax2b.text(dates[argmaxTime[sens][idxSort]-1][c],(maxTime_Canton[sens][idxSort][c]-max[sens-1]), CANTON_NAMES[idxSort][c],ha='right', va='center', zorder=10)
 
         ## PLOT DATA ##
-        #data = np.load("../canton_daily_cases.npy")
-        data = swiss_cantons.PrepareData(days=140)
+        data = np.load("../canton_daily_cases.npy")
         cantons = data.shape[0] 
         days = data.shape[1]
         dates   = np.array([self.base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
