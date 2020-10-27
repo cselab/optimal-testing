@@ -48,7 +48,15 @@ Finally, the sequential optimization will be applied, to find the optimal test a
 ## Plot the results (part 1/2, sampling)
 The posterior distributions the arise from nested-sampling are plotted by running 
    ` python3 plot_nested_sampling_results.py --case X`
-where X=2,3,4. The plots are saved as .pdf files, in the directory caseX.
+where X=2,3,4. The plots are saved as .pdf files, in the directory caseX. This directory contains:
+1. cantons.pdf : shows the fitted model for all cantons (reported infections' data plotted against model output)
+2. posteriorX.pdf : shows the one-dimensional marginal posterior distributions of the model parameters, after they are updated with data for the reported infections
+3. result.npy : contains the utility function evaluations
+4. map.npy : contains the maximum a posteriori estimates of the model parameters, after the inference is completed.
+5. samples_X.pickle : contains the samples of the model parameters after the inference
+6. prediction_country.pdf : model prediction plotted against data for total reported cases in Switzerland
+7. day=Y.npy : epidemiological model evaluation for all cantons on day Y
+8. dispersion.npy : error model dispersion (needed to plot some error bars) 
 
 ## Plot the results (part 2/2, test allocation)
 PASCAL UPDATE THIS
@@ -75,8 +83,6 @@ Then, in the directory 'comparison':
 ## Brief description of available scripts
 1. common.py : contains the dates used for test allocation for the four cases.
 2. nested.py : does the nested-sampling. The prior distributions for the model parameters used for each case can be found here.
-3. osp.py    : utility function evaluation
-4. samples.py: evaluates the model at model parameter samples
-5. seiin.py  : wrapper for the employed epidemiological model's C++ code
-6. swiss_cantons.py : will download data used for cases 2,3,4 as well as cantons connections matrix for epidemiological model
-
+3. samples.py: evaluates the model at model parameter samples
+4. seiin.py  : wrapper for the employed epidemiological model's C++ code
+5. swiss_cantons.py : will download data used for cases 2,3,4 as well as cantons connections matrix for epidemiological model
