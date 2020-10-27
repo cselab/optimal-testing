@@ -84,7 +84,6 @@ def Posterior_Samples(days,samples,res,case):
     print ("Rank",rank,"completed evaluations",flush=True)
     comm.Barrier()
 
-    np.save("case"+str(case)+"/runs.npy",All_results)
     np.save("case"+str(case)+"/dispersion.npy",dispersion)
 
     return All_results

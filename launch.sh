@@ -1,10 +1,10 @@
 CORES=36
 NLIVE=100
-CASE=3
+CASE=1
 DLOGZ=0.1
-SAMPLES=120
+SAMPLES=240
 SENSORS=2
-NY=120
+NY=240
 
 python3 nested.py --nlive $NLIVE --case $CASE --dlogz $DLOGZ --cores $CORES
 mpirun -n $CORES ./samples.py --case $CASE --samples $SAMPLES

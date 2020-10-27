@@ -16,19 +16,18 @@ In the following, we provide a detailed explanation on how to clone the director
 
 ## Installation
 
-First, install Cmake https://wwwcmake.org/ and boost https://www.boost.org/ .
-Then compile the epidemiological model as follows:
+First, install [Cmake](https://wwwcmake.org/) and [Boost](https://www.boost.org/).
+Second, install the [Dynesty](https://dynesty.readthedocs.io/en/latest/) library by using pip3:
+
+`pip3 install dynesty`
+
+Finally, compile the epidemiological model as follows:
 
 1. `cd optimal-testing/covid19`
 2. `mkdir -p build`
 3. `cd build`
 4. `cmake ..`
 5. `make`
-
-Second, install the [Dynesty](https://dynesty.readthedocs.io/en/latest/) library by using pip3:
-
-1. `pip3 install dynesty`
-
 
 ## Run the Optimal Testing with nested sampling
 The optimal testing allocation is run via the script launch.sh. The script takes the following arguments
@@ -42,13 +41,14 @@ The optimal testing allocation is run via the script launch.sh. The script takes
 7. DLOGZ   : parameter used as termination criterion for nested-sampling (use 0.1 or smaller number)
 
 This script will sample the model parameters first. The samples will be drawn uniformly for case 1 and with nested-sampling for the other cases.
-Then, the epidemiological model will be evaluated using those samples.
+Note that nested-sampling for cases 3 and 4 takes a while.
+Then, the epidemiological model is evaluated using those samples.
 Finally, the sequential optimization will be applied, to find the optimal test allocation.
 
 ## Plot the results (part 1/2, sampling)
-1. The posterior distributions the arise from nested-sampling are plotted by running 
+The posterior distributions the arise from nested-sampling are plotted by running 
    ` python3 plot_nested_sampling_results.py --case X`
-   where X=2,3,4. The plots are saved as .pdf files, in the directory caseX.
+where X=2,3,4. The plots are saved as .pdf files, in the directory caseX.
 
 ## Plot the results (part 2/2, test allocation)
 PASCAL UPDATE THIS
