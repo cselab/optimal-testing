@@ -181,7 +181,7 @@ if __name__ == '__main__':
   sendbuf = np.zeros(nPerRank,dtype=np.float64)
   recvbuf = None
   if rank == 0:
-    print("Running {} function evaluations.. {} per Rank".format(nFunctionEvaluations,nPerRank))
+    print("Running {}x{} function evaluations.. {}x{} per Rank".format(nSurveys,nFunctionEvaluations,nSurveys,nPerRank))
   optimalTime = []
   optimalLocation = []
   utility = []
