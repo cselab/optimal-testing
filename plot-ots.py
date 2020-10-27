@@ -313,7 +313,8 @@ class utility:
                     ax2b.text(dates[argmaxTime[sens][idxSort]-1][c],(maxTime_Canton[sens][idxSort][c]-max[sens-1]), CANTON_NAMES[idxSort][c],ha='right', va='center', zorder=10)
 
         ## PLOT DATA ##
-        data = np.load("../canton_daily_cases.npy")
+        #data = np.load("../canton_daily_cases.npy")
+        data = swiss_cantons.PrepareData(days=140)
         cantons = data.shape[0] 
         days = data.shape[1]
         dates   = np.array([self.base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
