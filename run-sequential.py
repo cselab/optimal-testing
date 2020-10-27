@@ -219,4 +219,4 @@ if __name__ == '__main__':
   if rank == 0:
     utility = np.array(utility)
     utility = utility.reshape((nSurveys,NCANTONS,(days-start_day))) 
-    np.save("case{}/result_Ny{:05d}_Nt{:05d}.npy".format(case,osp.Ny,osp.Ntheta),utility)
+    np.save("case{}/result.npy",utility)
