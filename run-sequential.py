@@ -208,7 +208,6 @@ if __name__ == '__main__':
     if rank == 0:
       recvbuf = recvbuf.reshape((-1,))[:nFunctionEvaluations]
       utility.append(recvbuf)
-      print(utility)
       maxIdx = np.argmax( recvbuf )
       optimalTime.append( maxIdx%days )
       optimalLocation.append( maxIdx//days )
@@ -219,6 +218,5 @@ if __name__ == '__main__':
   # write result to file
   if rank == 0:
     utility = np.array(utility)
-    print(utility)
     utility = utility.reshape((nSurveys,NCANTONS,(days-start_day))) 
     np.save("case{}/result_Ny{:05d}_Nt{:05d}.npy".format(case,osp.Ny,osp.Ntheta),utility)
