@@ -4,7 +4,7 @@ This repository contains the code to compute optimal testing allocations to iden
 The employed epidemiological model is coded in C++ and uses python bindings. It relies on:
 
 1. **Cmake**: minimum required version 3.12 
-2. **boost**: 
+2. **boost**: https://www.boost.org/
 
 In the following, we provide a detailed explanation on how to clone the directory, install the code and use it.
 
@@ -23,7 +23,7 @@ Then compile the epidemiological model as follows:
 4. `cmake ..`
 5. `make`
 
-Second, install the dynesty library by using pip3:
+Second, install the [Dynesty](https://dynesty.readthedocs.io/en/latest/) library by using pip3:
 
 1. `pip3 install dynesty`
 
@@ -45,21 +45,29 @@ Finally, the sequential optimization will be applied, to find the optimal test a
 
 ## Plot the results (part 1/2, sampling)
 1. The posterior distributions the arise from nested-sampling are plotted by running 
-   ` python3 plot_nested_sampling_results --case X`
+   ` python3 plot_nested_sampling_results.py --case X`
    where X=2,3,4. The plots are saved as .pdf files, in the directory caseX.
 
 ## Plot the results (part 2/2, test allocation)
+PASCAL UPDATE THIS
 1. Go to the figures directory
 3. To plot the illustration of the different cases, run `python3 plot-scenarios.py`.
 2. Run the plotting script `python3 plot-ots.py --case Y` where Y=1,2,3. This will create the plots for the different cases as shown in the publication. The figures are saved in figures/caseY.
 3. To create the tables from the Supplementary Information, run `python3 print-tables.py --case Y` for Y=1,2,3. The generated screen output can be copy pasted to generate the tables in latex.
 4. The comparison of the effectiveness of the different strategies can be done `python3 plot-effectiveness.py`. The figures are saved in figures/effectiveness.
 
+## Compare optimal strategy with non-specific strategy
+To do this comparison you must first:
+1. Run the optimal testing for case 1, so that the utility function is computed and the optimal strategy is defined.
+2. Run the optimal testing for case 2 and the plot_nestes_sampling.py script afterwards, so that the maximum a posteriori estimates for the model parameters are used to generate artificial survey measurements.
+
+Then, in the directory 'comparison':
+1. Execute `python3 comparison.py --surveys 2`
+2. Plot the results by using `python3 plot.py`
+
 
 ## References
 1. Data [openZH database](https://raw.githubusercontent.com/daenuprobst/covid19-cases-switzerland/master/covid19_cases_switzerland_openzh.csv). For the inference on the swiss data we do not use the NaN values.
-2. Nested sampling with the dynesty library [Dynesty](https://dynesty.readthedocs.io/en/latest/)
-3. Korali library [Korali](https://github.com/cselab/korali)
 
 
 ## Brief description of available scripts
