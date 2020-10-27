@@ -32,13 +32,14 @@ Finally, compile the epidemiological model as follows:
 ## Run the Optimal Testing with nested sampling
 The optimal testing allocation is run via the script launch.sh. The script takes the following arguments
 
-1. CORES   : how many cores will be used
+1. CORES   : maximum number of available cores
 2. CASE    : which case to run (1,2,3 or 4)
 3. SENSORS : how many surveys to allocate (one survey corresponds to testing people in one canton)
 4. SAMPLES : how many model parameter samples will be used for the Monte-Carlo approximation of the integral in the utility function
 5. NY      : how many measurement samples will be used for the Monte-Carlo approximation of the integral in the utility function
 6. NLIVE   : parameter used for nested-sampling for cases 2,3,4 (use 50 for quick results or around 500-1000 for more accurate sampling)
 7. DLOGZ   : parameter used as termination criterion for nested-sampling (use 0.1 or smaller number)
+8. CORES_SAMPLES   : how many cores will be used to evaluate the model using the model parameter samples. Must be less than or equal to CORES and SAMPLES must be divisible by this number.
 
 This script will sample the model parameters first. The samples will be drawn uniformly for case 1 and with nested-sampling for the other cases.
 Note that nested-sampling for cases 3 and 4 takes a while.
