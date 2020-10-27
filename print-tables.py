@@ -67,16 +67,16 @@ if __name__ == '__main__':
   args = vars(parser.parse_args())
   
   if args["case"] == 1:
-    r1 = np.load("case1/result_Ny00800_Nt00800.npy")
+    r1 = np.load("case1/result.npy")
     table1(r1,0,"\caption{ {\\bf Maximum expected information gain for outbreak of a new disease.} The corresponding optimal dates are shown in parenthesis.}","1")
 
   if args["case"] == 2:
-    r2 = np.load("case2/result_Ny00800_Nt00800.npy")
+    r2 = np.load("case2/result.npy")
     table1(r2,21,"\caption{ {\\bf Maximum expected information gain  for effect of non-pharmaceutical interventions.} The corresponding optimal dates are shown in parenthesis.}","2")
 
   if args["case"] == 3:
-    r3 = np.load("case3/result_Ny00800_Nt00800.npy")
+    r3 = np.load("case3/result.npy")
     table1(r3,102,"\caption{ {\\bf Maximum expected information gain  to monitor a second outbreak with uniformed $b_3$.} The corresponding optimal dates are shown in parenthesis.}","3a")
 
-    r4 = np.load("case3/result_Ny00800_Nt00800_2.npy")
+    r4 = np.load("case3/result.npy")
     table1(r4,136,"\caption{ {\\bf Maximum expected information gain  to monitor a second outbreak with informed $b_3$.} The corresponding optimal dates are shown in parenthesis.}","3b")

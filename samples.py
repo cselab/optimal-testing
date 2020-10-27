@@ -62,6 +62,7 @@ def Posterior_Samples(days,samples,res,case):
     comm.Barrier()
 
     np.save("case"+str(case)+"/dispersion.npy",dispersion)
+    np.save("case"+str(case)+"/runs.npy",All_results)
 
     return All_results
 
