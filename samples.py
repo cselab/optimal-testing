@@ -16,60 +16,39 @@ def Posterior_Samples(days,samples,res,case):
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    size_1 = int ( np.sqrt(size) )
-    size_2 = int ( np.sqrt(size) )
-    if rank >= size_1 * size_2:
-        print ("Rank",rank,"returns.")
-        return
-    N = size_1
-    rank_1 = rank // N
-    rank_2 = rank %  N
-
     s = getPosteriorFromResult(res)
     ic_cantons = 12 #nuisance parameters
 
     numbers = random.sample(range(s.shape[0]), samples)
-
     P     = np.zeros((ic_cantons,samples))
     j = 0
     for ID in numbers:
         P[0:ic_cantons+0,j] = s[ID,  s.shape[1] - ic_cantons - 1 : s.shape[1] - 1 ]
         j += 1
-
     params = s.shape[1] - 1 # -1 for the dispersion
     THETA = []
-
     dispersion = np.zeros(samples)
     i = 0
 
-    ####################################
     if params == 6 + ic_cantons: #case 2
-    ####################################
         for ID in numbers:
             THETA.append(s[ID,0:6]) #(b0,mu,alpha,Z,D,theta)
-    ####################################
     elif params == 12 + ic_cantons: #case 3
-    ####################################
         for ID in numbers:
             THETA.append(s[ID,0:12]) #(b0,mu,alpha,Z,D,theta,b1,b2,d1,d2,theta1,theta2)
             dispersion[i] = s[ID,-1]
             i += 1
-    ####################################
     elif params == 12 + ic_cantons + 1: #case 4
-    ####################################
         for ID in numbers:
             THETA.append(s[ID,0:13]) #(b0,mu,alpha,Z,D,theta,b1,b2,d1,d2,theta1,theta2,lambda)
             dispersion[i] = s[ID,-1]
             i += 1
 
-    All_results  = np.zeros((int(days),samples//N,samples//N,26))
+    All_results  = np.zeros((int(days),samples//size,samples,26))
 
-    print (rank , All_results.shape)
     iii = 0
-    for isim1 in range(rank_1*samples//N,(rank_1+1)*samples//N):
-      if rank == 0:
-         print(isim1)
-      for isim2 in range(rank_2*samples//N,(rank_2+1)*samples//N):
+    for isim1 in range(rank*samples//size,(rank+1)*samples//size):
+      for isim2 in range(samples):
         p = []
         for i in range(len(THETA[0])):
           p.append(THETA[isim1][i])
@@ -78,13 +57,10 @@ def Posterior_Samples(days,samples,res,case):
         results = example_run_seiin(days,p)
         aux = p[2]/p[3]
         for day in range(days):
-            #All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  results[day].Iu()
-            All_results[int(day),isim1-rank_1*samples//N,isim2-rank_2*samples//N,:] =  aux* np.asarray(results[day].E())
+            All_results[int(day),isim1-rank*samples//size,isim2,:] =  aux* np.asarray(results[day].E())
         iii += 1
-    print ("Rank",rank,"completed evaluations",flush=True)
     comm.Barrier()
 
-    np.save("case"+str(case)+"/runs.npy",All_results)
     np.save("case"+str(case)+"/dispersion.npy",dispersion)
 
     return All_results
@@ -94,14 +70,6 @@ def Uniform_Samples(days,samples):
      comm = MPI.COMM_WORLD
      rank = comm.Get_rank()
      size = comm.Get_size()
-     size_1 = int ( np.sqrt(size) )
-     size_2 = int ( np.sqrt(size) )
-     if rank >= size_1 * size_2:
-         print ("Rank",rank,"returns.")
-         return
-     N = size_1
-     rank_1 = rank // N
-     rank_2 = rank %  N
 
      npar = 6 + 12 #parameters for seiir model
      #            b     mu   a    Z    D  theta
@@ -124,11 +92,10 @@ def Uniform_Samples(days,samples):
      for s in range(samples):
             P [:,s] = p_min + (p_max-p_min)*P[:,s]
 
-     All_results  = np.zeros((int(days),samples//N,samples//N,26))
-     print (rank , All_results.shape)
+     All_results  = np.zeros((int(days),samples//size,samples,26))
      iii = 0
-     for isim1 in range(rank_1*samples//N,(rank_1+1)*samples//N):
-       for isim2 in range(rank_2*samples//N,(rank_2+1)*samples//N):
+     for isim1 in range(rank*samples//size,(rank+1)*samples//size):
+       for isim2 in range(samples):
          p = []
          for i in range(params):
            p.append(THETA[i,isim1])
@@ -136,80 +103,67 @@ def Uniform_Samples(days,samples):
            p.append(P[i,isim2])
          results = example_run_seiin(days,p,1000)
          for day in range(days):
-             All_results[int(day)][isim1-rank_1*samples//N][isim2-rank_2*samples//N][:] =  results[day].Iu()
+             All_results[int(day)][isim1-rank*samples//size][isim2][:] =  results[day].Iu()
          iii += 1
-     print ("Rank",rank,"completed evaluations",flush=True)
      comm.Barrier()
      return All_results
-
-
 
 if __name__ == '__main__':
       argv = sys.argv[1:]
       parser = argparse.ArgumentParser()
-      parser.add_argument('--samples'    , type=int, default=100)
-      parser.add_argument('--case'       , type=int, default=1)
+      parser.add_argument('--samples', type=int, default=100)
+      parser.add_argument('--case'   , type=int, default=1)
 
       args = parser.parse_args(argv)
       model   = example_run_seiin
       samples = args.samples
+      case = args.case
 
       days = 0
-      if args.case == 1:
+      if case == 1:
          days = 20
-      elif args.case == 2:
+      elif case == 2:
          days = 60
-      elif args.case == 3:
+      elif case == 3:
          days = 120
-      elif args.case == 4:
+      elif case == 4:
          days = 150
 
+      print("+++++++++++++++++++++++++++++++++++++++++++++++")
+      print("++ Model evaluations using parameter samples ++")
+      print(" Case: ", case)
+      print(" Samples: ", samples)
+      print("+++++++++++++++++++++++++++++++++++++++++++++++")
+      
       comm = MPI.COMM_WORLD
       rank = comm.Get_rank()
       size = comm.Get_size()
-      size_1 = int ( np.sqrt(size) )
-      size_2 = int ( np.sqrt(size) )
 
-      N = size_1
-      rank_1 = rank // N
-      rank_2 = rank %  N
+      assert samples % size == 0
 
-      test = size / size_1       
-      if test != size_1:
-        print("Please run samples.py with a square number (1,4,9,16,...) of MPI ranks")
-        assert test == size_1 
-      if samples % N != 0:
-        print("Please use a number of samples that is divisible by the square root of the total number of MPI ranks used.")
-        assert(samples % N == 0)
-
-      results  = np.zeros((int(days),samples//N,samples//N,26))
+      results  = np.zeros((int(days),samples//size,samples,26))
 
       from pathlib import Path
-      Path("case"+str(args.case)).mkdir(parents=True, exist_ok=True)
-      if args.case == 1:
-         results = Uniform_Samples    (days,args.samples)
+      Path("case"+str(case)).mkdir(parents=True, exist_ok=True)
+
+      if case == 1:
+         results = Uniform_Samples(days,samples)
       else:
-         res = pickle.load( open("case"+str(args.case)+"/samples_"+str(args.case)+".pickle", "rb" ) )
-         results = Posterior_Samples(days,args.samples,res,args.case)
+         res = pickle.load( open("case"+str(case)+"/samples_"+str(case)+".pickle", "rb" ) )
+         results = Posterior_Samples(days,samples,res,case)
 
       comm = MPI.COMM_WORLD
       rank = comm.Get_rank()
       for d in range(days):
            comm.Barrier()
-
            if rank == 0:
               data = np.zeros((samples,samples,26))
-              data[0:samples//N,0:samples//N,:] = results[d,:,:,:]
+              data[0:samples//size, :, :] = results[d,:,:,:]
               for r in range(1,size):
-                rank_1 = r // N
-                rank_2 = r %  N
-                data[rank_1*samples//N:(rank_1+1)*samples//N,
-                     rank_2*samples//N:(rank_2+1)*samples//N,:] = comm.recv(source=r, tag=r)
+                data[r*samples//size:(r+1)*samples//size, :,:] = comm.recv(source=r, tag=r)
               s = "{:05d}".format(d)
               name = "day=" + s
-              print("Saving day",d,"...",end='')
-              np.save("case"+str(args.case)+"/" + name + ".npy",data)
-              print("completed.")
+              np.save("case"+str(case)+"/" + name + ".npy",data)
               del data
            else:
               comm.send(results[d,:,:,:], dest=0, tag=rank)

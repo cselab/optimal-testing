@@ -1,4 +1,6 @@
 *.npy
+!canton_shapes.npy
+!canton_daily_cases.npy
 *.pdf
 *.sh
 *.swp

@@ -1,16 +1,31 @@
 import argparse
 import numpy as np
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.dates import DateFormatter
 import matplotlib.dates as mdates
 import datetime
 import os,sys
-
-sys.path.append('..')
 import swiss_cantons
 plt.rcParams.update({'font.size': 5
     })
+
+#Case I
+T_DATA_CASE_1 = 0 
+
+#Case II: First intervention announced
+#Data is available for the first 21 days and sensors are placed in the next two weeks.
+T_DATA_CASE_2 = 21
+
+#Case III: Loosening of measures annoucned
+#Data is available for the first 102 days and sensors are placed in the next 38 days.
+T_DATA_CASE_3 = 102
+
+#Case IV: Loosening of measures annoucned
+#Data is available for the first 136 days and sensors are placed in the next 38 days.
+T_DATA_CASE_4 = 136 #July 9
 
 CANTON_NAMES = np.array(['AG','AI','AR','BE','BL','BS','FR','GE','GL','GR',\
         'JU','LU','NE','NW','OW','SG','SH','SO','SZ','TG',\
@@ -116,7 +131,6 @@ class utility:
         ## data
         self.data = np.load(filename)
         self.dims = self.data.shape
-        print(self.dims)
         self.nSensors = 4
         self.nCantons = self.dims[1]
         self.nTimesteps = self.dims[2]
@@ -241,8 +255,8 @@ class utility:
         data = np.load("runs.npy")
         disp = np.load("dispersion.npy")
         
-        data1 = np.load("runs2.npy")
-        disp1 = np.load("dispersion2.npy")
+        data1 = np.load("../case4/runs.npy")
+        disp1 = np.load("../case4/dispersion.npy")
 
         numDays = data1.shape[0]
         dates   = np.array([self.base + datetime.timedelta(hours=(24 * i)) for i in range(numDays)])
@@ -272,7 +286,7 @@ class utility:
 
         ## PLOT UTILITIES 3b ##
         ## data
-        data = np.load("result_Ny00800_Nt00800_2.npy")
+        data = np.load("../case4/result.npy")
         dims = data.shape
 
         nSensors = 4
@@ -299,8 +313,7 @@ class utility:
                     ax2b.text(dates[argmaxTime[sens][idxSort]-1][c],(maxTime_Canton[sens][idxSort][c]-max[sens-1]), CANTON_NAMES[idxSort][c],ha='right', va='center', zorder=10)
 
         ## PLOT DATA ##
-        #data = np.load("../canton_daily_cases.npy")
-        data = swiss_cantons.PrepareData(days=140,country=False)
+        data = np.load("../canton_daily_cases.npy")
         cantons = data.shape[0] 
         days = data.shape[1]
         dates   = np.array([self.base + datetime.timedelta(hours=(24 * i)) for i in range(days)])
@@ -342,8 +355,8 @@ if __name__ == '__main__':
   parser.add_argument('--case',help='integer indicating which case to plot',type=int, required=True)
   args = vars(parser.parse_args())
 
-  os.chdir("../case{}".format(args["case"]))
-  util = utility("result_Ny00010_Nt00010.npy")
+  os.chdir("./case{}".format(args["case"]))
+  util = utility("result.npy")
 
   if args["case"] == 1:
     util.plotUtilities()

@@ -169,6 +169,15 @@ if __name__=='__main__':
            model = model_4
            model_transformation = model_transformation_4
            ndim = 12 + ic_cantons + 1 + 1
+
+        print("+++++++++++++++++++++++++++++")
+        print("+++   Nested Sampling     +++")
+        print(" Case : " , args.case)
+        print(" nlive: " , args.nlive)
+        print(" dlogz: " , args.dlogz)
+        print(" cores: " , args.cores)
+        print("+++++++++++++++++++++++++++++")
+
     
         t = -time.time()
         from pathlib import Path

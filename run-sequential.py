@@ -219,4 +219,7 @@ if __name__ == '__main__':
   if rank == 0:
     utility = np.array(utility)
     utility = utility.reshape((nSurveys,NCANTONS,(days-start_day))) 
-    np.save("case"+str(args['case'])+"/result.npy",utility)
+    
+    utility_final = np.zeros( (nSurveys,NCANTONS,days),dtype=np.float64)
+    utility_final[:,:,start_day:days] = utility
+    np.save("case"+str(args['case'])+"/result.npy",utility_final)
