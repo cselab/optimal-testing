@@ -60,10 +60,8 @@ where X=2,3,4. The plots are saved as .pdf files, in the directory caseX. This d
 8. dispersion.npy : error model dispersion (needed to plot some error bars) 
 
 ## Plot the results (part 2/2, test allocation)
-1. To plot the illustration of the different cases, run `python3 plot-scenarios.py`. The resulting file is `scenarios.pdf`
-2. Run the plotting script `python3 plot-ots.py --case Y` where Y=1,2,3. This will create the plots for the different cases as shown in the publication. The figures are saved in figures/caseY.
-3. To create the tables from the Supplementary Information, run `python3 print-tables.py --case Y` for Y=1,2,3. The generated screen output can be copy pasted to generate the tables in latex.
-4. The comparison of the effectiveness of the different strategies can be done `python3 plot-effectiveness.py`. The figures are saved in figures/effectiveness.
+1. Run the plotting script `python3 plot-ots.py --case Y` where Y=1,2,3. This will create the plots for the different cases as shown in the publication. The figures are saved in figures/caseY. CAREFULL: Plotting case Y=3 assumes that the optimal testing was run for case 3 and case 4.
+2. The tables from the Supplementary Information are created using `python3 print-tables.py --case Y` for Y=1,2,3. The generated screen output can be copy pasted to generate the tables in latex.
 
 ## Compare optimal strategy with non-specific strategy
 To do this comparison you must first:
