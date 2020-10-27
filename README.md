@@ -29,8 +29,8 @@ Finally, compile the epidemiological model as follows:
 4. `cmake ..`
 5. `make`
 
-## Run the Optimal Testing with nested sampling
-The optimal testing allocation is run via the script *launch.sh*. The script contains the following arguments
+## Run the Optimal Test Allocation
+The optimal test allocation is run via the script *launch.sh*. The script contains the following arguments
 
 1. CORES   : maximum number of available cores (MPI processes)
 2. CASE    : which case to run (1,2,3 or 4)
