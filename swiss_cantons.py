@@ -43,7 +43,7 @@ def download_and_save(url, path, cache_duration=1000000000, load=True):
     """
     path = pathlib.Path(path)
     try:
-        if time.time() - path.lstat().st_mtime <= cache_duration:
+        if True: #time.time() - path.lstat().st_mtime <= cache_duration:
             if load:
                 with open(path, 'rb') as f:
                     return f.read()
@@ -252,7 +252,11 @@ def prepareData(days = -1,country = False):
         c_i = name[c]
         data[c,0] = IR[c_i][0]
         for d in range(1,days):
-            data[c,d] = IR[c_i][d] - IR[c_i][d-1]   
+            data[c,d] = IR[c_i][d] - IR[c_i][d-1]  
+            if data[c,d] <0:
+                print (c_i,d,IR[c_i][d],IR[c_i][d-1])
+                print (IR[c_i][:])
+                assert(False)
 
 
     y = []
@@ -272,4 +276,5 @@ def prepareData(days = -1,country = False):
                 y.append(c)
                 y.append(d)
                 y.append(d1[d])
+  
     return y
