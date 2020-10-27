@@ -197,7 +197,7 @@ if __name__ == '__main__':
     # evaluate utility for candidates on the different ranks
     for evaluation in range(nPerRank):
       idx = rank*nPerRank+evaluation
-      if idx > nFunctionEvaluations:
+      if idx >= nFunctionEvaluations:
         break
       time[0] = start_day+idx%(days-start_day)
       space[0] = idx//days
